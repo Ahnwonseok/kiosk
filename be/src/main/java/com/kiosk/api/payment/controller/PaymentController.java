@@ -7,6 +7,8 @@ import com.kiosk.api.payment.service.PaymentService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import com.kiosk.config.ClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,32 +21,28 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/api/payment/cash")
-    public PaymentResultResponseDto payByCash(@RequestBody final PayByCashInDto payByCashInDto, final Long fail) {
-        if (Objects.equals(fail, 400L)) {
+    public PaymentResultResponseDto payByCash(@RequestBody final PayByCashInDto payByCashInDto) {
+        try {
+            Long orderId = paymentService.createPaymentByCash(payByCashInDto);
+            return handle200(orderId, "현금 결제 성공하였습니다.");
+        } catch (ClientException e) {
             return handle400();
-        }
-
-        if (Objects.equals(fail, 500L)) {
+        } catch (Exception e) {
             return handle500();
         }
-
-        Long orderId = paymentService.createPaymentByCash(payByCashInDto);
-        return handle200(orderId, "현금 결제 성공하였습니다.");
     }
 
 
     @PostMapping("/api/payment/card")
-    public PaymentResultResponseDto payByCard(@RequestBody final PayByCardInDto payByCardInDto, final Long fail) {
-        if (Objects.equals(fail, 400L)) {
+    public PaymentResultResponseDto payByCard(@RequestBody final PayByCardInDto payByCardInDto) {
+        try {
+            Long orderId = paymentService.createPaymentByCard(payByCardInDto);
+            return handle200(orderId, "카드 결제 성공하였습니다.");
+        } catch (ClientException e) {
             return handle400();
-        }
-
-        if (Objects.equals(fail, 500L)) {
+        } catch (Exception e) {
             return handle500();
         }
-
-        Long orderId = paymentService.createPaymentByCard(payByCardInDto);
-        return handle200(orderId, "카드 결제 성공하였습니다.");
     }
 
 
