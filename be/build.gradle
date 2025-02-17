@@ -1,0 +1,40 @@
+plugins {
+    id 'org.springframework.boot' version '3.2.2' // 최신 버전 확인 후 적용
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+}
+
+group = 'com.kiosk'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'mysql:mysql-connector-java:8.0.26'
+    implementation 'com.h2database:h2'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.1'
+    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

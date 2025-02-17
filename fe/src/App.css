@@ -1,0 +1,39 @@
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.App {
+  display: flex;
+  width: 50rem;
+  height: 70rem;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--color-primary);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .App {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+  }
+}
+
+/* 태블릿 최적화 */
+@media (min-width: 769px) and (max-width: 1199px) {
+  .App {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+/* 데스크톱 화면 */
+@media (min-width: 1200px) {
+  .App {
+    width: 60vw;
+    height: 100vh;
+  }
+}

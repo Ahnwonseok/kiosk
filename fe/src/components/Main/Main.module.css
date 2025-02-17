@@ -1,0 +1,28 @@
+.main {
+  position: relative;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* TODO: height를 어떻게 설정해야 main이 스크롤 될 때도 아래까지 다 덮을 수 있을까? */
+.mainDim {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: rgba(128, 128, 128, 0.7);
+  z-index: 1;
+}
