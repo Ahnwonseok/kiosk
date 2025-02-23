@@ -14,9 +14,8 @@ public class ReceiptController {
 
     private final ReceiptService receiptService;
 
-    @GetMapping("/api/receipt")
+        @GetMapping("/api/receipt")
     public ReceiptResponseDto getReceiptInformation(@RequestParam Long orderId) {
-        // TODO: orderId가 유효한지 확인
         Receipt receipt = receiptService.getReceiptInformation(orderId);
         return ReceiptResponseDto.from(receipt);
     }
