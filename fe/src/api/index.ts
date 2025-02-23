@@ -23,10 +23,12 @@ export const fetchMenus = async (): Promise<CategoryInfo[] | undefined> => {
   menusFetchPromise = (async () => {
     try {
       const url = new URL('products', BASE_API_DOMAIN);
-      return await fetchJSON(url);
+      const result = await fetchJSON(url);
+      menusFetchPromise = null; // 성공적인 응답 후 초기화
+      return result;
     } catch (error) {
       console.error(error);
-      menusFetchPromise = null; // 에러 발생 시 다음 요청을 위해 초기화
+      menusFetchPromise = null; // 에러 발생 시 초기화
       return undefined;
     }
   })();
@@ -59,13 +61,24 @@ export const requestCardOrder = async (
   }
 };
 
+let receiptFetchPromise: { [key: number]: Promise<OrderSuccessInfo | undefined> } = {};
+
 export const fetchReceipt = async (orderId: number): Promise<OrderSuccessInfo | undefined> => {
-  try {
-    const url = new URL(`api/receipt?orderId=${orderId}`, BASE_API_DOMAIN);
-    return await fetchJSON(url);
-  } catch (error) {
-    console.error(error);
+  if (orderId in receiptFetchPromise) {
+    return receiptFetchPromise[orderId];
   }
+
+  receiptFetchPromise[orderId] = (async () => {
+    try {
+      const url = new URL(`api/receipt?orderId=${orderId}`, BASE_API_DOMAIN);
+      return await fetchJSON(url);
+    } catch (error) {
+      console.error(error);
+      return undefined;
+    }
+  })();
+
+  return receiptFetchPromise[orderId];
 };
 
 export const requestCashOrder = async (
