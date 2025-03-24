@@ -1,18 +1,18 @@
 package com.kiosk.api.order.domain.service;
 
-import static com.kiosk.api.payment.domain.entity.PaymentMethod.CARD;
+import static com.kiosk.entity.PaymentMethod.CARD;
 
-import com.kiosk.api.order.domain.entity.OrderLog;
-import com.kiosk.api.order.domain.entity.OrderProduct;
-import com.kiosk.api.order.domain.entity.Orders;
-import com.kiosk.api.order.domain.repository.OrderLogRepository;
-import com.kiosk.api.order.domain.repository.OrderProductRepository;
-import com.kiosk.api.order.domain.repository.OrdersRepository;
-import com.kiosk.api.order.service.OrderLogService;
-import com.kiosk.api.payment.domain.entity.Payment;
-import com.kiosk.api.payment.domain.repository.PaymentRepository;
-import com.kiosk.api.product.domain.entity.Product;
-import com.kiosk.api.product.domain.repository.ProductRepository;
+import com.kiosk.entity.OrderLog;
+import com.kiosk.entity.OrderProduct;
+import com.kiosk.entity.Orders;
+import com.kiosk.repository.OrderLogRepository;
+import com.kiosk.repository.OrderProductRepository;
+import com.kiosk.repository.OrdersRepository;
+import com.kiosk.service.OrderLogService;
+import com.kiosk.entity.Payment;
+import com.kiosk.repository.PaymentRepository;
+import com.kiosk.entity.Product;
+import com.kiosk.repository.ProductRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,47 +53,52 @@ class OrderLogServiceTest {
     public void dailyActions() {
         // given
         LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+        Orders orders = new Orders();
+        Product product = new Product();
         // 주문 저장
         ordersRepository.save(
-            Orders.builder().orderId(1L).orderNumber(1L).orderDatetime(yesterday.toString()).build());
+            Orders.builder().orderNumber(1L).orderDatetime(yesterday.toString()).build());
+        //OrderProducts
         List<OrderProduct> orderProducts = new ArrayList<>();
         orderProducts.add(
-            OrderProduct.builder().orderId(1L).productId(1L).name("아메리카노").amount(1).size("small").temperature("ice")
-                .build());
+                OrderProduct.builder().order(orders).product(product).name("아메리카노").amount(1).size("small").temperature("ice")
+                        .build());
         orderProducts.add(
-            OrderProduct.builder().orderId(1L).productId(2L).name("카라멜 마키아또").amount(2).size("small").temperature("hot")
-                .build());
+                OrderProduct.builder().order(orders).product(product).name("카라멜 마키아또").amount(2).size("small").temperature("hot")
+                        .build());
         orderProducts.add(
-            OrderProduct.builder().orderId(1L).productId(3L).name("롱블랙").amount(3).size("small").temperature("ice")
-                .build());
-        orderProducts.add(OrderProduct.builder().orderId(1L).productId(4L).name("프렌치 아메리카노").amount(4).size("small")
-            .temperature("ice").build());
+                OrderProduct.builder().order(orders).product(product).name("롱블랙").amount(3).size("small").temperature("ice")
+                        .build());
         orderProducts.add(
-            OrderProduct.builder().orderId(1L).productId(6L).name("카페 라떼").amount(1).size("small").temperature("ice")
-                .build());
+                OrderProduct.builder().order(orders).product(product).name("프렌치 아메리카노").amount(4).size("small")
+                        .temperature("ice").build());
         orderProducts.add(
-            OrderProduct.builder().orderId(1L).productId(7L).name("초콜릿 라떼").amount(1).size("large").temperature("ice")
-                .build());
-        orderProducts.add(OrderProduct.builder().orderId(1L).productId(11L).name("민트 블렌드 티").amount(1).size("large")
-            .temperature("hot").build());
+                OrderProduct.builder().order(orders).product(product).name("카페 라떼").amount(1).size("small").temperature("ice")
+                        .build());
         orderProducts.add(
-            OrderProduct.builder().orderId(1L).productId(12L).name("블루밍 프루트 유스베리 티").amount(2).size("small")
+                OrderProduct.builder().order(orders).product(product).name("초콜릿 라떼").amount(1).size("large").temperature("ice")
+                        .build());
+        orderProducts.add(
+                OrderProduct.builder().order(orders).product(product).name("민트 블렌드 티").amount(1).size("large")
                 .temperature("hot").build());
         orderProducts.add(
-            OrderProduct.builder().orderId(1L).productId(16L).name("딸기 주스").amount(1).size("small").temperature("ice")
-                .build());
+                OrderProduct.builder().order(orders).product(product).name("블루밍 프루트 유스베리 티").amount(2).size("small")
+                        .temperature("hot").build());
+        orderProducts.add(
+                OrderProduct.builder().order(orders).product(product).name("딸기 주스").amount(1).size("small").temperature("ice")
+                        .build());
         // 주문상품 저장
-        orderProducts.forEach(orderProduct -> orderProductRepository.save(orderProduct));
+        orderProductRepository.saveAll(orderProducts);
 
         // 결제 저장
         paymentRepository.save(
-            Payment.builder().paymentId(1L).orderId(1L).method(CARD).totalPrice(10000).receivedPrice(10000)
+            Payment.builder().orders(orders).method(CARD).totalPrice(10000).receivedPrice(10000)
                 .remainedPrice(0).build());
 
         // when
         orderLogService.dailyActions();
         // then
-        List<OrderLog> orderLogs = orderLogRepository.findAllByDate(yesterday.toLocalDate());
+        List<OrderLog> orderLogs = orderLogRepository.findAllBySalesDate(yesterday.toLocalDate().toString());
         List<Product> bestProducts = productRepository.findAll().stream()
             .filter(Product::isBest)
             .collect(Collectors.toUnmodifiableList());

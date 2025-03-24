@@ -7,17 +7,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kiosk.api.order.domain.entity.OrderProduct;
-import com.kiosk.api.order.domain.repository.OrderProductRepository;
-import com.kiosk.api.payment.domain.dto.PaymentRequestDto.CartInDto;
-import com.kiosk.api.payment.domain.dto.PaymentRequestDto.PayByCardInDto;
-import com.kiosk.api.payment.domain.dto.PaymentRequestDto.PayByCashInDto;
-import com.kiosk.api.payment.domain.dto.PaymentResultResponseDto;
-import com.kiosk.api.payment.domain.entity.Payment;
-import com.kiosk.api.payment.domain.entity.PaymentMethod;
-import com.kiosk.api.payment.domain.repository.PaymentRepository;
+import com.kiosk.entity.OrderProduct;
+import com.kiosk.repository.OrderProductRepository;
+import com.kiosk.dto.PaymentRequestDto.CartInDto;
+import com.kiosk.dto.PaymentRequestDto.PayByCardInDto;
+import com.kiosk.dto.PaymentRequestDto.PayByCashInDto;
+import com.kiosk.dto.PaymentResultResponseDto;
+import com.kiosk.entity.Payment;
+import com.kiosk.entity.PaymentMethod;
+import com.kiosk.repository.PaymentRepository;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,18 +111,18 @@ class KioskWebApplicationTests {
             new ObjectMapper().readValue(json, PaymentResultResponseDto.class);
         Long orderId = Long.parseLong(String.valueOf(paymentResultResponseDto.getData().get("orderId")));
 
-        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow();
-        List<OrderProduct> findOrderProducts = orderProductRepository.findAllBy(orderId);
+        Payment payment = paymentRepository.findByOrdersId(orderId).orElseThrow();
+        List<OrderProduct> findOrderProducts = orderProductRepository.findAllByOrderId(orderId);
         SoftAssertions.assertSoftly(softAssertions -> {
             // TODO: 주문검증
 
             // 결제검증
-            softAssertions.assertThat(payment.getPaymentId()).isNotNull();
+            softAssertions.assertThat(payment.getId()).isNotNull();
             softAssertions.assertThat(payment.getMethod()).isEqualTo(PaymentMethod.CARD);
             softAssertions.assertThat(payment.getRemainedPrice()).isEqualTo(0);
             softAssertions.assertThat(payment.getReceivedPrice()).isEqualTo(totalPrice);
             softAssertions.assertThat(payment.getTotalPrice()).isEqualTo(totalPrice);
-            softAssertions.assertThat(payment.getOrderId()).isEqualTo(orderId);
+            softAssertions.assertThat(payment.getId()).isEqualTo(orderId);
 
             // 주문상품 검증
             softAssertions.assertThat(findOrderProducts.size()).isEqualTo(3);
@@ -188,18 +187,18 @@ class KioskWebApplicationTests {
             new ObjectMapper().readValue(json, PaymentResultResponseDto.class);
         Long orderId = Long.parseLong(String.valueOf(paymentResultResponseDto.getData().get("orderId")));
 
-        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow();
-        List<OrderProduct> findOrderProducts = orderProductRepository.findAllBy(orderId);
+        Payment payment = paymentRepository.findByOrdersId(orderId).orElseThrow();
+        List<OrderProduct> findOrderProducts = orderProductRepository.findAllByOrderId(orderId);
         SoftAssertions.assertSoftly(softAssertions -> {
             // TODO: 주문검증
 
             // 결제검증
-            softAssertions.assertThat(payment.getPaymentId()).isNotNull();
+            softAssertions.assertThat(payment.getId()).isNotNull();
             softAssertions.assertThat(payment.getMethod()).isEqualTo(PaymentMethod.CASH);
             softAssertions.assertThat(payment.getRemainedPrice()).isEqualTo(600);
             softAssertions.assertThat(payment.getReceivedPrice()).isEqualTo(totalPrice);
             softAssertions.assertThat(payment.getTotalPrice()).isEqualTo(totalPrice);
-            softAssertions.assertThat(payment.getOrderId()).isEqualTo(orderId);
+            softAssertions.assertThat(payment.getId()).isEqualTo(orderId);
 
             // 주문상품 검증
             softAssertions.assertThat(findOrderProducts.size()).isEqualTo(3);

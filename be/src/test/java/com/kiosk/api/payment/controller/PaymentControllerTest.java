@@ -8,12 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kiosk.api.order.domain.repository.OrderProductRepository;
-import com.kiosk.api.payment.domain.dto.PaymentRequestDto.CartInDto;
-import com.kiosk.api.payment.domain.dto.PaymentRequestDto.PayByCardInDto;
-import com.kiosk.api.payment.domain.dto.PaymentRequestDto.PayByCashInDto;
-import com.kiosk.api.payment.domain.repository.PaymentRepository;
-import com.kiosk.api.payment.service.PaymentService;
+import com.kiosk.controller.PaymentController;
+import com.kiosk.repository.OrderProductRepository;
+import com.kiosk.dto.PaymentRequestDto.CartInDto;
+import com.kiosk.dto.PaymentRequestDto.PayByCardInDto;
+import com.kiosk.dto.PaymentRequestDto.PayByCashInDto;
+import com.kiosk.repository.PaymentRepository;
+import com.kiosk.service.PaymentService;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;

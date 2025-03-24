@@ -1,6 +1,6 @@
 package com.kiosk.api.product.web.controller;
 
-import static com.kiosk.api.product.domain.entity.CategoryType.COFFEE;
+import static com.kiosk.entity.CategoryType.COFFEE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
@@ -11,12 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
-import com.kiosk.api.product.controller.ProductController;
-import com.kiosk.api.product.controller.dto.ProductDto;
-import com.kiosk.api.product.domain.entity.Category;
-import com.kiosk.api.product.domain.entity.Product;
-import com.kiosk.api.product.service.CategoryService;
-import com.kiosk.api.product.service.ProductService;
+import com.kiosk.controller.ProductController;
+import com.kiosk.dto.ProductDto;
+import com.kiosk.entity.Category;
+import com.kiosk.entity.Product;
+import com.kiosk.service.CategoryService;
+import com.kiosk.service.ProductService;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

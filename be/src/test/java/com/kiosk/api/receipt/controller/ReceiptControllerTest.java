@@ -1,6 +1,6 @@
 package com.kiosk.api.receipt.controller;
 
-import static com.kiosk.api.payment.domain.entity.PaymentMethod.CARD;
+import static com.kiosk.entity.PaymentMethod.CARD;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -8,11 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.kiosk.api.order.domain.entity.OrderProduct;
-import com.kiosk.api.order.domain.entity.Orders;
-import com.kiosk.api.payment.domain.entity.Payment;
-import com.kiosk.api.receipt.domain.entity.Receipt;
-import com.kiosk.api.receipt.service.ReceiptService;
+import com.kiosk.controller.ReceiptController;
+import com.kiosk.entity.OrderProduct;
+import com.kiosk.entity.Orders;
+import com.kiosk.entity.Payment;
+import com.kiosk.entity.Receipt;
+import com.kiosk.service.ReceiptService;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,29 +50,24 @@ class ReceiptControllerTest {
 
         List<OrderProduct> orderProducts = new ArrayList<>();
         orderProducts.add(OrderProduct.builder()
-            .productId(1L)
             .size("large")
             .temperature("hot")
             .amount(2)
             .name("아메리카노")
             .build());
         orderProducts.add(OrderProduct.builder()
-            .productId(1L)
             .size("small")
             .temperature("ice")
             .amount(2)
             .name("아메리카노")
             .build());
         orderProducts.add(OrderProduct.builder()
-            .productId(1L)
             .size("small")
             .temperature("hot")
             .amount(2)
             .name("아메리카노")
             .build());
         Payment payment = Payment.builder()
-            .paymentId(1L)
-            .orderId(orderId)
             .totalPrice(10000)
             .receivedPrice(10000)
             .remainedPrice(0)
@@ -79,7 +75,6 @@ class ReceiptControllerTest {
             .build();
 
         Orders orders = Orders.builder()
-            .orderId(orderId)
             .orderNumber(1L)
             .orderDatetime("2023-06-21 12:00:00")
             .build();
