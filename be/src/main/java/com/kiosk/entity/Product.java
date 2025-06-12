@@ -21,16 +21,24 @@ import static jakarta.persistence.FetchType.LAZY;
 //@ToString
 public class Product {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long id;            // 상품 아이디
+    @Column(name = "product_name")
     private String name;        // 이름
+    @Column(name = "product_price")
     private Long price;         // 가격
+    @Column(name = "product_imgUrl")
     private String imgUrl;       // 이미지 저장 경로
+    @Column(name = "product_isBest")
     private boolean isBest;     // 인기 상품
+    @Column(name = "product_hasHot")
     private boolean hasHot;     // 핫 가능 여부
+    @Column(name = "product_hasIce")
     private boolean hasIce;     // 아이스 가능 여부
+    @Column(name = "product_hasLarge")
     private boolean hasLarge;   // 라지 사이즈 가능 여부
+    @Column(name = "product_hasSmall")
     private boolean hasSmall;   // 스몰 사이즈 가능 여부
 
     @ManyToOne(fetch = LAZY)
