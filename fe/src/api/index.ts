@@ -1,7 +1,9 @@
 import { CategoryInfo, OrderResult, OrderSuccessInfo, ProductOrder } from 'pages/types';
 import { formatMenuOptionOrderList } from 'utils';
 
-const BASE_API_DOMAIN = new URL(`http://192.168.123.103:8080`);
+//const BASE_API_DOMAIN = new URL(`http://192.168.123.103:8080`);
+const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
+//const BASE_API_DOMAIN = new URL(`http://192.168.0.69:8080`);
 
 const fetchJSON = async (url: URL, option?: {}) => {
   const response = await fetch(url, option);
