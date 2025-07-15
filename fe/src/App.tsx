@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import Home from 'pages/Home';
 import ReceiptPage from 'pages/ReceiptPage';
+import LoginPage from 'pages/LoginPage';
+import BaristaPage from 'pages/BaristaPage';
 import './App.css';
 
 export default function App() {
@@ -8,7 +10,9 @@ export default function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomeRoute />} />
+          <Route path="/" element={<LoginRoute />} />
+          <Route path="/barista" element={<BaristaRoute />} />
+          <Route path="/kiosk" element={<KioskRoute />} />
           <Route path="/receipt/orderId/:orderId" element={<ReceiptRoute />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
@@ -17,7 +21,17 @@ export default function App() {
   );
 }
 
-function HomeRoute() {
+function LoginRoute() {
+  const navigate = useNavigate();
+  return <LoginPage navigate={navigate} />;
+}
+
+function BaristaRoute() {
+  const navigate = useNavigate();
+  return <BaristaPage navigate={navigate} />;
+}
+
+function KioskRoute() {
   const navigate = useNavigate();
   return <Home navigate={navigate} />;
 }
@@ -31,7 +45,7 @@ function ReceiptRoute() {
     return <NotFoundPage />;
   }
   
-  return <ReceiptPage orderId={Number(orderId)} goHome={() => navigate('/')} />;
+  return <ReceiptPage orderId={Number(orderId)} goHome={() => navigate('/kiosk')} />;
 }
 
 function NotFoundPage() {
