@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './LoginPage.module.css';
+import { login } from '../api'; // 경로는 실제 위치에 맞게 조정
 
 interface LoginPageProps {
   navigate: (path: string) => void;
@@ -17,16 +18,17 @@ export default function LoginPage({ navigate }: LoginPageProps) {
     setError('');
 
     try {
-      // 실제 구현에서는 API 호출을 통해 인증
-      // 임시로 하드코딩된 인증 (실제로는 서버에서 처리)
-      if (username === 'barista' && password === '1234') {
-        // 로그인 성공 시 바리스타 화면으로 이동
-        navigate('/barista');
-      } else {
-        setError('아이디 또는 비밀번호가 올바르지 않습니다.');
-      }
+      const data = await login(username, password);
+      // JWT 토큰을 localStorage 등에 저장
+      localStorage.setItem('token', data.token);
+      // 필요하다면 사용자 정보도 저장
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('role', data.role);
+
+      // 로그인 성공 시 바리스타 화면으로 이동
+      navigate('/barista');
     } catch (err) {
-      setError('로그인 중 오류가 발생했습니다.');
+      setError('아이디 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setIsLoading(false);
     }

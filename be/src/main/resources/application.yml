@@ -21,11 +21,13 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
-#  org.hibernate.type: trace
+  org.hibernate.type: trace
+  org.hibernate.type.descriptor.sql.BasicBinder: trace
+  org.hibernate.orm.jdbc.bind: trace
 
 server:
   port: 8081
 
 jwt:
-  secret: your-secret-key-here-make-it-long-and-secure-at-least-256-bits
+  secret: your-super-secret-jwt-key-that-is-long-enough-for-hs512-algorithm-and-must-be-at-least-512-bits-long-which-means-64-characters-minimum
   expiration: 86400000 # 24시간 (밀리초)

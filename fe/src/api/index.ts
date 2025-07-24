@@ -1,8 +1,8 @@
 import { CategoryInfo, OrderResult, OrderSuccessInfo, ProductOrder } from 'pages/types';
 import { formatMenuOptionOrderList } from 'utils';
 
-const BASE_API_DOMAIN = new URL(`http://192.168.123.103:8081`);
-//const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
+//const BASE_API_DOMAIN = new URL(`http://192.168.123.103:8081`);
+const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
 //const BASE_API_DOMAIN = new URL(`http://192.168.0.42:8081`);
 
 const fetchJSON = async (url: URL, option?: {}) => {
@@ -24,7 +24,7 @@ export const fetchMenus = async (): Promise<CategoryInfo[] | undefined> => {
 
   menusFetchPromise = (async () => {
     try {
-      const url = new URL('products', BASE_API_DOMAIN);
+      const url = new URL('api/products', BASE_API_DOMAIN);
       const result = await fetchJSON(url);
       menusFetchPromise = null; // 성공적인 응답 후 초기화
       return result;
@@ -134,3 +134,13 @@ export const failCardOrder = async (
     console.error(error);
   }
 };
+
+export async function login(username: string, password: string) {
+  const response = await fetch(BASE_API_DOMAIN+'api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!response.ok) throw new Error('로그인 실패');
+  return response.json();
+}

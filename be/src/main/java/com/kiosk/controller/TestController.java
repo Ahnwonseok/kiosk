@@ -17,7 +17,7 @@ public class TestController {
 
     private final ProductService productService;
 
-    @PostMapping("/addProduct")
+    @PostMapping("/api/addProduct")
     public String add(@RequestBody ProductDto productDto) {
         logger.debug("productDto : {}", productDto);
         Long id = productService.save(productDto);

@@ -13,6 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.kiosk.config.JwtAuthenticationFilter;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import com.kiosk.repository.UserRepository;
+import com.kiosk.service.UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -47,7 +51,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
+    public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return new UserService(userRepository, passwordEncoder);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+        UserDetailsService userDetailsService, 
+        PasswordEncoder passwordEncoder) throws Exception {
+        
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        
+        return new ProviderManager(provider);
     }
 } 

@@ -48,7 +48,7 @@ public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-    @GetMapping("/products")
+    @GetMapping("/api/products")
     public List<ProductCategoryResponse> list() {
         List<Product> products = productService.findAllWithCategory(); // List<Product> 반환
         List<Category> categories = categoryService.findAll();

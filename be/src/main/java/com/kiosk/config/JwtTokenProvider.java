@@ -20,6 +20,11 @@ public class JwtTokenProvider {
     private long jwtExpiration;
 
     private SecretKey getSigningKey() {
+        // HS256에 충분한 크기의 키 생성 (최소 256비트 = 32바이트)
+        if (jwtSecret.length() < 32) {
+            // 기존 secret이 너무 짧으면 안전한 키로 생성
+            return Jwts.SIG.HS256.key().build();
+        }
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
@@ -32,7 +37,7 @@ public class JwtTokenProvider {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(getSigningKey(), Jwts.SIG.HS512)
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
