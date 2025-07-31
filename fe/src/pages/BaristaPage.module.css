@@ -160,4 +160,379 @@
   .placeholder p:first-child {
     font-size: 1.5rem;
   }
+}
+
+/* 주문 관리 화면 스타일 */
+.ordersContainer {
+  display: flex;
+  gap: 30px;
+  height: calc(100vh - 200px);
+  min-height: 600px;
+}
+
+.orderInputSection {
+  flex: 1;
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.orderInputSection h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.menuSelection h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.categoryTabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.categoryTab {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 3px solid transparent;
+}
+
+.categoryTab:hover {
+  color: #667eea;
+  background-color: #f0f4ff;
+}
+
+.categoryTab.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  background-color: #f0f4ff;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.menuItem {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menuItem:hover {
+  border-color: #667eea;
+  background: #f0f4ff;
+  transform: translateX(5px);
+}
+
+.menuInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.menuName {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.menuPrice {
+  color: #667eea;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.orderDetails {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  flex: 1;
+}
+
+.orderDetails h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.orderItem:last-child {
+  border-bottom: none;
+}
+
+.removeButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.removeButton:hover {
+  background: #c82333;
+}
+
+.orderTotal {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid #667eea;
+  text-align: right;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.confirmOrderButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.confirmOrderButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.orderManagementSection {
+  flex: 1;
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.orderManagementSection h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 20px 0;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.orderStatusTabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.statusTab {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.statusTab:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.orderList {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.orderCard {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  border-left: 4px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.orderCard:hover {
+  transform: translateX(5px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.orderNumber {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.orderTime {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.orderItems {
+  margin-bottom: 15px;
+}
+
+.orderItems div {
+  color: #333;
+  margin-bottom: 5px;
+  font-size: 0.95rem;
+}
+
+.orderActions {
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  flex: 1;
+}
+
+.actionButton:hover {
+  background: #5a6fd8;
+}
+
+/* 빈 주문 상태 스타일 */
+.emptyOrder {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 1rem;
+}
+
+.emptyOrder p {
+  margin: 0;
+  font-style: italic;
+}
+
+/* 반응형 디자인 - 주문 관리 */
+@media (max-width: 1024px) {
+  .ordersContainer {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .orderInputSection,
+  .orderManagementSection {
+    flex: none;
+  }
+  
+  .categoryTabs {
+    flex-wrap: wrap;
+  }
+  
+  .menuList {
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ordersContainer {
+    gap: 20px;
+  }
+  
+  .orderInputSection,
+  .orderManagementSection {
+    padding: 20px;
+  }
+  
+  .categoryTabs {
+    gap: 3px;
+  }
+  
+  .categoryTab {
+    padding: 8px 15px;
+    font-size: 0.8rem;
+  }
+  
+  .menuItem {
+    padding: 12px;
+  }
+  
+  .orderStatusTabs {
+    flex-wrap: wrap;
+  }
+  
+  .statusTab {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+/* 모달 오버레이 스타일 */
+.mainDim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 } 
