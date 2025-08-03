@@ -1,5 +1,5 @@
 import { BASE_API_DOMAIN } from './index';
-import { OrderData, ManagedOrder, OrderStatusUpdate, ApiResponse } from './types';
+import { OrderData, ManagedOrder, OrderStatusUpdate, ApiResponse, BackendOrderResponse } from './types';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('jwt');
@@ -26,12 +26,28 @@ const fetchJSON = async (url: URL, option?: RequestInit) => {
   return response.json();
 };
 
+// 백엔드 응답을 프론트엔드 형식으로 변환하는 함수
+const transformBackendOrder = (backendOrder: BackendOrderResponse): ManagedOrder => {
+  return {
+    orderId: backendOrder.id.toString(),
+    orderTime: backendOrder.orderDatetime,
+    orderItems: [], // 백엔드에서 주문 상품 정보를 제공하지 않으므로 빈 배열
+    status: backendOrder.orderStatus as 'waiting' | 'processing' | 'completed',
+    totalPrice: 0 // 백엔드에서 총 가격 정보를 제공하지 않으므로 0
+  };
+};
+
 // 주문 목록 조회
 export const fetchOrders = async (): Promise<ManagedOrder[]> => {
   try {
     const url = new URL('api/orders', BASE_API_DOMAIN);
-    const orders = await fetchJSON(url);
-    return orders;
+    const backendOrders: BackendOrderResponse[] = await fetchJSON(url);
+    
+    // 백엔드 응답을 프론트엔드 형식으로 변환
+    const transformedOrders = backendOrders.map(transformBackendOrder);
+    console.log('🔄 변환된 주문 데이터:', transformedOrders);
+    
+    return transformedOrders;
   } catch (error) {
     console.error('주문 목록 조회 실패:', error);
     throw new Error('주문 목록을 불러오는데 실패했습니다.');

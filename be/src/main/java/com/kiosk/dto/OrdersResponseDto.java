@@ -5,13 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Builder
 @Getter
 public class OrdersResponseDto {
 
     private Long orderId;
-    private String orderDatetime;
+    private LocalDateTime orderDatetime;
     private Long orderNumber;
 
     public static OrdersResponseDto from(Orders orders) {

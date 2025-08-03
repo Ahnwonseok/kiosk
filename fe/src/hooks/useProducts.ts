@@ -15,7 +15,6 @@ export default function useProducts(): [CategoryInfo[], boolean, string | undefi
       
       if (!mounted) return;
       
-      console.log("productData", productData);
       setLoading(false);
 
       if (typeof productData === 'undefined') {

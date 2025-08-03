@@ -1,5 +1,13 @@
 import { ProductOrder } from 'pages/types';
 
+// 백엔드 응답 타입 (실제 받아오는 데이터)
+export interface BackendOrderResponse {
+  id: number;
+  orderNumber: number;
+  orderDatetime: string;
+  orderStatus: string;
+}
+
 // 주문 관련 타입
 export interface OrderData {
   orderItems: ProductOrder[];

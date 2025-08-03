@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.NoSuchElementException;
 
@@ -42,7 +41,7 @@ public class PaymentService {
     @Transactional
     public Long createPaymentByCash(final PayByCashInDto payByCashInDto) {
         // 주문 생성
-        Orders order = new Orders(LocalDateTime.now().toString(), orderNumber++);
+        Orders order = new Orders(orderNumber++);
 
         // 주문 상품 저장
         orderProductService.saveOrderProductsWithOrder(order, payByCashInDto.getOrderProducts());
@@ -78,7 +77,7 @@ public class PaymentService {
     @Transactional
     public Long createPaymentByCard(final PaymentRequestDto.PayByCardInDto payByCardInDto) {
         // 주문 생성
-        Orders order = new Orders(LocalDateTime.now().toString(), orderNumber++);
+        Orders order = new Orders(orderNumber++);
 
         // 주문 상품 저장
         orderProductService.saveOrderProductsWithOrder(order, payByCardInDto.getOrderProducts());

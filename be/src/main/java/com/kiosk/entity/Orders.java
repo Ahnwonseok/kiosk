@@ -3,6 +3,8 @@ package com.kiosk.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -16,10 +18,15 @@ public class Orders {
     @Column(name = "order_id")
     private Long id;
     private Long orderNumber;
-    private String orderDatetime;
+    
+    @Column(name = "order_datetime", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime orderDatetime;
 
-    public Orders (String orderDatetime, Long orderNumber) {
-        this.orderDatetime = orderDatetime;
+    @Enumerated(EnumType.STRING) //EnumType.ORDINAL이 기본값
+    @Column(name = "status")
+    private OrderStatus orderStatus;
+
+    public Orders(Long orderNumber) {
         this.orderNumber = orderNumber;
     }
 }

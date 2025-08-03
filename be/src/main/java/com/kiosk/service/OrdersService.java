@@ -19,12 +19,12 @@ public class OrdersService {
     private static int today;
     private static Long orderNumber = 0L;
 
-    public Orders createOrder() {
-        return ordersRepository.save(
-                Orders.builder()
-                        .orderDatetime(LocalDateTime.now().toString())
-                        .build());
-    }
+//    public Orders createOrder() {
+//        return ordersRepository.save(
+//                Orders.builder()
+//                        .orderDatetime(LocalDateTime.now())
+//                        .build());
+//    }
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public static void setToday() {
