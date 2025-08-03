@@ -20,7 +20,7 @@ export default function LoginPage({ navigate }: LoginPageProps) {
     try {
       const data = await login(username, password);
       // JWT 토큰을 localStorage 등에 저장
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('jwt', data.token);
       // 필요하다면 사용자 정보도 저장
       localStorage.setItem('username', data.username);
       localStorage.setItem('role', data.role);
@@ -109,11 +109,6 @@ export default function LoginPage({ navigate }: LoginPageProps) {
           </button>
         </div>
 
-        <div className={styles.demoInfo}>
-          <p className={styles.demoText}>
-            <strong>데모 계정:</strong> 아이디: barista, 비밀번호: 1234
-          </p>
-        </div>
       </div>
     </div>
   );

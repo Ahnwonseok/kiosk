@@ -1,12 +1,28 @@
 import { CategoryInfo, OrderResult, OrderSuccessInfo, ProductOrder } from 'pages/types';
 import { formatMenuOptionOrderList } from 'utils';
 
-//const BASE_API_DOMAIN = new URL(`http://192.168.123.103:8081`);
-const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
+//const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
+export const BASE_API_DOMAIN = new URL(`http://192.168.123.101:8081`);
+//const BASE_API_DOMAIN = new URL(`http://182.229.16.44:8081`);
 //const BASE_API_DOMAIN = new URL(`http://192.168.0.42:8081`);
 
-const fetchJSON = async (url: URL, option?: {}) => {
-  const response = await fetch(url, option);
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('jwt');
+  console.log('🔍 JWT Token Check:', token ? `Token exists (${token.substring(0, 20)}...)` : 'No token found');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
+
+const fetchJSON = async (url: URL, option?: RequestInit) => {
+  const response = await fetch(url, {
+    ...option,
+    headers: {
+      ...getAuthHeaders(),
+      ...(option?.headers || {})
+    }
+  });
 
   if (!response.ok) {
     throw new Error(response.statusText);
@@ -49,9 +65,6 @@ export const requestCardOrder = async (
   });
   const option = {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: json,
   };
 
@@ -96,9 +109,6 @@ export const requestCashOrder = async (
   });
   const option = {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: json,
   };
 
@@ -121,9 +131,6 @@ export const failCardOrder = async (
   });
   const option = {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: json,
   };
 
@@ -144,3 +151,7 @@ export async function login(username: string, password: string) {
   if (!response.ok) throw new Error('로그인 실패');
   return response.json();
 }
+
+// 새로운 API 모듈들 export
+export * from './orders';
+export * from './types';

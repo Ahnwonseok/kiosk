@@ -1,10 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { LoadingIndicator } from 'components/LoadingIndicator/LoadingIndicator';
 import OrderModal from 'components/Modal/OrderModal';
 import useProducts from 'hooks/useProducts';
 import { formatAllCategories } from 'utils';
 import { CategoryInfo, ProductInfo, ProductOrder } from './types';
 import useOutsideClick from '../hooks/useOutsideClick';
+import { fetchOrders, createOrder, updateOrderStatus } from 'api';
+import { ManagedOrder, OrderEvent } from 'api/types';
 import styles from './BaristaPage.module.css';
 
 interface BaristaPageProps {
@@ -23,6 +25,88 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
 
   // 주문 목록 상태
   const [orderList, setOrderList] = useState<ProductOrder[]>([]);
+  
+  // 주문 관리 상태 (백엔드 연동)
+  const [managedOrders, setManagedOrders] = useState<ManagedOrder[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<'waiting' | 'processing' | 'completed'>('waiting');
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+
+  // 중복 호출 방지를 위한 ref
+  const isFetchingRef = useRef(false);
+
+  // 백엔드 API 호출 함수들
+  const fetchOrdersData = async () => {
+    if (isFetchingRef.current) {
+      console.log('🔄 fetchOrdersData 이미 호출 중이므로 스킵');
+      return;
+    }
+    isFetchingRef.current = true;
+    setOrdersLoading(true);
+    setOrdersError(null);
+    
+    try {
+      const orders = await fetchOrders();
+      setManagedOrders(orders);
+    } catch (error) {
+      setOrdersError(error instanceof Error ? error.message : '주문 목록 조회에 실패했습니다.');
+    } finally {
+      setOrdersLoading(false);
+      isFetchingRef.current = false;
+    }
+  };
+
+  // 실시간 업데이트 (Server-Sent Events)
+  useEffect(() => {
+    const eventSource = new EventSource('/api/orders/stream');
+    
+    eventSource.onmessage = (event) => {
+      try {
+        const data: OrderEvent = JSON.parse(event.data);
+        
+        switch (data.type) {
+          case 'NEW_ORDER':
+            if (data.order) {
+              setManagedOrders(prev => [...prev, data.order!]);
+            }
+            break;
+          case 'STATUS_CHANGE':
+            if (data.orderId && data.status) {
+              setManagedOrders(prev => 
+                prev.map(order => 
+                  order.orderId === data.orderId 
+                    ? { ...order, status: data.status as 'waiting' | 'processing' | 'completed' }
+                    : order
+                )
+              );
+            }
+            break;
+          case 'ORDER_DELETED':
+            if (data.orderId) {
+              setManagedOrders(prev => 
+                prev.filter(order => order.orderId !== data.orderId)
+              );
+            }
+            break;
+        }
+      } catch (error) {
+        console.error('SSE 데이터 파싱 오류:', error);
+      }
+    };
+    
+    eventSource.onerror = (error) => {
+      console.error('SSE 연결 오류:', error);
+    };
+    
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
+  // 컴포넌트 마운트 시 주문 목록 조회
+  useEffect(() => {
+    fetchOrdersData();
+  }, []);
 
   const handleLogout = () => {
     // 로그아웃 처리 (실제로는 세션/토큰 삭제)
@@ -53,15 +137,31 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     setOrderList(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 주문 등록 함수
-  const handleConfirmOrder = () => {
+  // 주문 등록 함수 (백엔드 연동)
+  const handleConfirmOrder = async () => {
     if (orderList.length === 0) return;
     
-    // 실제 주문 등록 로직 (API 호출 등)
-    console.log('주문 등록:', orderList);
+    const totalPrice = calculateTotalPrice();
+    const result = await createOrder({
+      orderItems: [...orderList],
+      totalPrice
+    });
     
-    // 주문 목록 초기화
-    setOrderList([]);
+    if (result.success) {
+      alert('주문이 등록되었습니다!');
+      setOrderList([]); // 주문 목록 초기화
+    } else {
+      alert(result.error || '주문 등록에 실패했습니다.');
+    }
+  };
+
+  // 주문 상태 변경 함수 (백엔드 연동)
+  const handleStatusChange = async (orderId: string, newStatus: 'waiting' | 'processing' | 'completed') => {
+    const result = await updateOrderStatus(orderId, { status: newStatus });
+    
+    if (!result.success) {
+      alert(result.error || '주문 상태 변경에 실패했습니다.');
+    }
   };
 
   // 총 금액 계산
@@ -81,6 +181,9 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
       return total + (price * order.amount);
     }, 0);
   };
+
+  // 상태별 주문 필터링
+  const filteredOrders = managedOrders.filter(order => order.status === selectedStatus);
 
   useOutsideClick(outsideModal, closeOrderModal);
 
@@ -226,55 +329,85 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
               <h2>주문 관리</h2>
               
               <div className={styles.orderStatusTabs}>
-                <button className={styles.statusTab}>대기 (3)</button>
-                <button className={styles.statusTab}>진행중 (2)</button>
-                <button className={styles.statusTab}>완료 (5)</button>
+                <button 
+                  className={`${styles.statusTab} ${selectedStatus === 'waiting' ? styles.active : ''}`}
+                  onClick={() => setSelectedStatus('waiting')}
+                >
+                  대기 ({managedOrders.filter(o => o.status === 'waiting').length})
+                </button>
+                <button 
+                  className={`${styles.statusTab} ${selectedStatus === 'processing' ? styles.active : ''}`}
+                  onClick={() => setSelectedStatus('processing')}
+                >
+                  진행중 ({managedOrders.filter(o => o.status === 'processing').length})
+                </button>
+                <button 
+                  className={`${styles.statusTab} ${selectedStatus === 'completed' ? styles.active : ''}`}
+                  onClick={() => setSelectedStatus('completed')}
+                >
+                  완료 ({managedOrders.filter(o => o.status === 'completed').length})
+                </button>
               </div>
 
               <div className={styles.orderList}>
-                <div className={styles.orderCard}>
-                  <div className={styles.orderHeader}>
-                    <span className={styles.orderNumber}>#001</span>
-                    <span className={styles.orderTime}>14:30</span>
+                {ordersLoading ? (
+                  <div className={styles.loadingContainer}>
+                    <LoadingIndicator text="주문 목록을 불러오는 중입니다..." />
                   </div>
-                  <div className={styles.orderItems}>
-                    <div>아메리카노 x 1</div>
-                    <div>카페라떼 x 2</div>
+                ) : ordersError ? (
+                  <div className={styles.errorContainer}>
+                    <p className={styles.errorMessage}>{ordersError}</p>
+                    <button 
+                      className={styles.retryButton}
+                      onClick={fetchOrdersData}
+                    >
+                      다시 시도
+                    </button>
                   </div>
-                  <div className={styles.orderActions}>
-                    <button className={styles.actionButton}>진행중</button>
-                    <button className={styles.actionButton}>완료</button>
+                ) : filteredOrders.length === 0 ? (
+                  <div className={styles.emptyOrder}>
+                    <p>{selectedStatus === 'waiting' ? '대기 중인 주문이 없습니다' : 
+                        selectedStatus === 'processing' ? '진행 중인 주문이 없습니다' : 
+                        '완료된 주문이 없습니다'}</p>
                   </div>
-                </div>
-
-                <div className={styles.orderCard}>
-                  <div className={styles.orderHeader}>
-                    <span className={styles.orderNumber}>#002</span>
-                    <span className={styles.orderTime}>14:25</span>
-                  </div>
-                  <div className={styles.orderItems}>
-                    <div>에스프레소 x 1</div>
-                    <div>바닐라라떼 x 1</div>
-                  </div>
-                  <div className={styles.orderActions}>
-                    <button className={styles.actionButton}>진행중</button>
-                    <button className={styles.actionButton}>완료</button>
-                  </div>
-                </div>
-
-                <div className={styles.orderCard}>
-                  <div className={styles.orderHeader}>
-                    <span className={styles.orderNumber}>#003</span>
-                    <span className={styles.orderTime}>14:20</span>
-                  </div>
-                  <div className={styles.orderItems}>
-                    <div>카푸치노 x 1</div>
-                  </div>
-                  <div className={styles.orderActions}>
-                    <button className={styles.actionButton}>진행중</button>
-                    <button className={styles.actionButton}>완료</button>
-                  </div>
-                </div>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <div key={order.orderId} className={styles.orderCard}>
+                      <div className={styles.orderHeader}>
+                        <span className={styles.orderNumber}>{order.orderId}</span>
+                        <span className={styles.orderTime}>{order.orderTime}</span>
+                      </div>
+                      <div className={styles.orderItems}>
+                        {order.orderItems.map((item, index) => (
+                          <div key={index}>
+                            {item.name} ({item.size}, {item.temperature}) x {item.amount}
+                          </div>
+                        ))}
+                      </div>
+                      <div className={styles.orderActions}>
+                        {order.status === 'waiting' && (
+                          <button 
+                            className={styles.actionButton}
+                            onClick={() => handleStatusChange(order.orderId, 'processing')}
+                          >
+                            진행중
+                          </button>
+                        )}
+                        {order.status === 'processing' && (
+                          <button 
+                            className={styles.actionButton}
+                            onClick={() => handleStatusChange(order.orderId, 'completed')}
+                          >
+                            완료
+                          </button>
+                        )}
+                        {order.status === 'completed' && (
+                          <span className={styles.completedStatus}>완료됨</span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>

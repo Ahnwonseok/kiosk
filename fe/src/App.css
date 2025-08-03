@@ -5,12 +5,12 @@
 }
 
 .App {
-  display: flex;
+  /* display: flex;
   width: 50rem;
   height: 70rem;
   justify-content: center;
   align-items: center;
-  border: 2px solid var(--color-primary);
+  border: 2px solid var(--color-primary); */
 }
 
 /* 모바일 최적화 */

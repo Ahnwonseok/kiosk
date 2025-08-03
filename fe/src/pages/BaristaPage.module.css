@@ -166,19 +166,21 @@
 .ordersContainer {
   display: flex;
   gap: 30px;
-  height: calc(100vh - 200px);
-  min-height: 600px;
+  height: calc(100vh - 100px);
+  min-height: 930px;
 }
 
 .orderInputSection {
-  flex: 1;
+  flex: 1.3;
   background: white;
   border-radius: 15px;
   padding: 30px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap:30px;
+  min-height: 0; /* 추가: flex 아이템이 부모 컨테이너를 넘지 않도록 */
+  overflow: hidden; /* 추가: 내용이 넘치지 않도록 */
 }
 
 .orderInputSection h2 {
@@ -188,6 +190,14 @@
   margin: 0;
   border-bottom: 3px solid #667eea;
   padding-bottom: 10px;
+}
+
+.menuSelection {
+  flex: 2;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .menuSelection h3 {
@@ -234,8 +244,9 @@
   flex-direction: column;
   gap: 10px;
   margin-bottom: 30px;
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
+  flex: 1;
 }
 
 .menuItem {
@@ -253,7 +264,7 @@
 .menuItem:hover {
   border-color: #667eea;
   background: #f0f4ff;
-  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
 
 .menuInfo {
@@ -280,6 +291,11 @@
   border-radius: 10px;
   padding: 20px;
   flex: 1;
+  min-height: 150px;
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .orderDetails h3 {
@@ -456,6 +472,24 @@
   background: #5a6fd8;
 }
 
+/* 완료된 주문 상태 스타일 */
+.completedStatus {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 15px;
+  background: #d4edda;
+  border-radius: 5px;
+  text-align: center;
+}
+
+/* 활성 상태 탭 스타일 */
+.statusTab.active {
+  border-color: #667eea;
+  color: #667eea;
+  background-color: #f0f4ff;
+}
+
 /* 빈 주문 상태 스타일 */
 .emptyOrder {
   text-align: center;
@@ -467,6 +501,43 @@
 .emptyOrder p {
   margin: 0;
   font-style: italic;
+}
+
+/* 로딩 컨테이너 스타일 */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  min-height: 200px;
+}
+
+/* 에러 컨테이너 스타일 */
+.errorContainer {
+  text-align: center;
+  padding: 40px 20px;
+  color: #dc3545;
+}
+
+.errorMessage {
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #dc3545;
+}
+
+.retryButton {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.retryButton:hover {
+  background: #5a6fd8;
 }
 
 /* 반응형 디자인 - 주문 관리 */
@@ -485,8 +556,10 @@
     flex-wrap: wrap;
   }
   
-  .menuList {
-    max-height: 250px;
+  /* 가로모드에서 주문상세 영역 제한 */
+  .orderDetails {
+    max-height: 1200px;
+    overflow-y: auto;
   }
 }
 
@@ -520,6 +593,12 @@
   .statusTab {
     flex: 1;
     text-align: center;
+  }
+  
+  /* 세로모드에서 주문상세 영역 제한 */
+  .orderDetails {
+    max-height: 180px;
+    overflow-y: auto
   }
 }
 
