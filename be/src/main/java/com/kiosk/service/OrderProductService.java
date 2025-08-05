@@ -35,6 +35,8 @@ public class OrderProductService {
                             .name(cartInDto.getName())
                             .size(cartInDto.getSize())
                             .temperature(cartInDto.getTemperature())
+                            .unitPrice(product != null ? product.getPrice().intValue() : 0)
+                            .totalPrice(product != null ? product.getPrice().intValue() * cartInDto.getAmount() : 0)
                             .build();
                 })
                 .toList();
@@ -42,7 +44,6 @@ public class OrderProductService {
         orderProductRepository.saveAll(orderProductEntities);
     }
 }
-
 //        for (PaymentRequestDto.CartInDto orderProduct : orderProducts) {
 //            OrderProduct completedOrderProduct = orderProduct.toEntity(orderId);
 //            orderProductRepository.save(completedOrderProduct);

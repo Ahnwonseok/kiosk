@@ -32,4 +32,6 @@ public class OrderProduct {
     private Integer amount;
     private String size;
     private String temperature;
+    private Integer unitPrice;
+    private Integer totalPrice;
 }
