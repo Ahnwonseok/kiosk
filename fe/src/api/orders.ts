@@ -28,11 +28,13 @@ const fetchJSON = async (url: URL, option?: RequestInit) => {
 
 // 백엔드 응답을 프론트엔드 형식으로 변환하는 함수
 const transformBackendOrder = (backendOrder: BackendOrderResponse): ManagedOrder => {
+  console.log('🔍 변환할 백엔드 주문 데이터:', backendOrder);
+  
   return {
-    orderId: backendOrder.id.toString(),
-    orderTime: backendOrder.orderDatetime,
+    orderId: (backendOrder.id || backendOrder.orderNumber || Date.now()).toString(),
+    orderTime: backendOrder.orderDatetime || new Date().toISOString(),
     orderItems: [], // 백엔드에서 주문 상품 정보를 제공하지 않으므로 빈 배열
-    status: backendOrder.orderStatus as 'waiting' | 'processing' | 'completed',
+    status: (backendOrder.orderStatus || 'waiting') as 'waiting' | 'processing' | 'completed',
     totalPrice: 0 // 백엔드에서 총 가격 정보를 제공하지 않으므로 0
   };
 };
@@ -43,9 +45,11 @@ export const fetchOrders = async (): Promise<ManagedOrder[]> => {
     const url = new URL('api/orders', BASE_API_DOMAIN);
     const backendOrders: BackendOrderResponse[] = await fetchJSON(url);
     
+    console.log('🔍 백엔드 주문 데이터:', backendOrders);
+    
     // 백엔드 응답을 프론트엔드 형식으로 변환
     const transformedOrders = backendOrders.map(transformBackendOrder);
-    console.log('🔄 변환된 주문 데이터:', transformedOrders);
+    console.log('🔍 변환된 주문 데이터:', transformedOrders);
     
     return transformedOrders;
   } catch (error) {
@@ -58,12 +62,20 @@ export const fetchOrders = async (): Promise<ManagedOrder[]> => {
 export const createOrder = async (orderData: OrderData): Promise<ApiResponse<ManagedOrder>> => {
   try {
     const url = new URL('api/orders', BASE_API_DOMAIN);
-    const newOrder = await fetchJSON(url, {
+    console.log('🔍 createOrder 요청:', orderData);
+    
+    const backendResponse = await fetchJSON(url, {
       method: 'POST',
       body: JSON.stringify(orderData)
     });
     
-    return { success: true, data: newOrder };
+    console.log('🔍 createOrder 백엔드 응답:', backendResponse);
+    
+    // 백엔드 응답을 프론트엔드 형식으로 변환
+    const transformedOrder = transformBackendOrder(backendResponse);
+    console.log('🔍 변환된 새 주문:', transformedOrder);
+    
+    return { success: true, data: transformedOrder };
   } catch (error) {
     console.error('주문 등록 실패:', error);
     return { 

@@ -42,12 +42,15 @@ public class PaymentService {
     public Long createPaymentByCash(final PayByCashInDto payByCashInDto) {
         // 주문 생성
         Orders order = new Orders(orderNumber++);
+        
+        // 주문 저장
+        Orders savedOrder = ordersRepository.save(order);
 
         // 주문 상품 저장
-        orderProductService.saveOrderProductsWithOrder(order, payByCashInDto.getOrderProducts());
+        orderProductService.saveOrderProductsWithOrder(savedOrder, payByCashInDto.getOrderProducts());
 
         // 결제 정보 저장
-        Payment payment = savePaymentByCash(order, payByCashInDto);
+        Payment payment = savePaymentByCash(savedOrder, payByCashInDto);
 
         return payment.getId();
     }
@@ -77,17 +80,21 @@ public class PaymentService {
     @Transactional
     public Long createPaymentByCard(final PaymentRequestDto.PayByCardInDto payByCardInDto) {
         // 주문 생성
-        Orders order = new Orders(orderNumber++);
+        Orders order = Orders.builder()
+                .orderNumber(orderNumber++)
+                .orderStatus(com.kiosk.entity.OrderStatus.waiting)
+                .build();
+        
+        // 주문 저장
+        Orders savedOrder = ordersRepository.save(order);
 
         // 주문 상품 저장
-        orderProductService.saveOrderProductsWithOrder(order, payByCardInDto.getOrderProducts());
+        orderProductService.saveOrderProductsWithOrder(savedOrder, payByCardInDto.getOrderProducts());
 
-        // 주문 저장
-        Payment payment = savePaymentByCard(order, payByCardInDto);
+        // 결제 정보 저장
+        savePaymentByCard(savedOrder, payByCardInDto);
 
-        paymentRepository.save(payment);
-
-        return payment.getId();
+        return savedOrder.getId();
     }
 
 //    public Long getLastOrderNumber() {

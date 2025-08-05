@@ -5,7 +5,7 @@ import useProducts from 'hooks/useProducts';
 import { formatAllCategories } from 'utils';
 import { CategoryInfo, ProductInfo, ProductOrder } from './types';
 import useOutsideClick from '../hooks/useOutsideClick';
-import { fetchOrders, createOrder, updateOrderStatus } from 'api';
+import { fetchOrders, createOrder, updateOrderStatus, BASE_API_DOMAIN } from 'api';
 import { ManagedOrder, OrderEvent } from 'api/types';
 import styles from './BaristaPage.module.css';
 
@@ -58,19 +58,26 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
 
   // 실시간 업데이트 (Server-Sent Events)
   useEffect(() => {
-    const eventSource = new EventSource('/api/orders/stream');
+    const eventSource = new EventSource(`${BASE_API_DOMAIN}api/orders/stream`);
     
     eventSource.onmessage = (event) => {
       try {
+        console.log('📋 SSE 이벤트 수신:', event.data);
         const data: OrderEvent = JSON.parse(event.data);
         
         switch (data.type) {
           case 'NEW_ORDER':
+            console.log('📋 새 주문 이벤트:', data.order);
             if (data.order) {
-              setManagedOrders(prev => [...prev, data.order!]);
+              setManagedOrders(prev => {
+                const newOrders = [...prev, data.order!];
+                console.log('📋 업데이트된 주문 목록:', newOrders);
+                return newOrders;
+              });
             }
             break;
           case 'STATUS_CHANGE':
+            console.log('📋 상태 변경 이벤트:', data.orderId, data.status);
             if (data.orderId && data.status) {
               setManagedOrders(prev => 
                 prev.map(order => 
@@ -82,6 +89,7 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
             }
             break;
           case 'ORDER_DELETED':
+            console.log('📋 주문 삭제 이벤트:', data.orderId);
             if (data.orderId) {
               setManagedOrders(prev => 
                 prev.filter(order => order.orderId !== data.orderId)
@@ -122,8 +130,27 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
   const closeOrderModal = () => setOrderModal(false);
 
   const handleAddOrder = (menuOrder: ProductOrder) => {
-    // 주문 추가 로직
-    setOrderList(prev => [...prev, menuOrder]);
+    // 동일한 메뉴, 온도, 사이즈의 주문이 있는지 확인하고 수량 합치기
+    setOrderList(prev => {
+      const existingIndex = prev.findIndex(order => 
+        order.productId === menuOrder.productId &&
+        order.temperature === menuOrder.temperature &&
+        order.size === menuOrder.size
+      );
+
+      if (existingIndex !== -1) {
+        // 기존 주문이 있으면 수량만 증가
+        const updatedList = [...prev];
+        updatedList[existingIndex] = {
+          ...updatedList[existingIndex],
+          amount: updatedList[existingIndex].amount + menuOrder.amount
+        };
+        return updatedList;
+      } else {
+        // 새로운 주문이면 추가
+        return [...prev, menuOrder];
+      }
+    });
     closeOrderModal();
   };
 
@@ -132,9 +159,13 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     openOrderModal();
   };
 
-  // 주문 삭제 함수
-  const handleRemoveOrder = (index: number) => {
-    setOrderList(prev => prev.filter((_, i) => i !== index));
+  // 주문 삭제 함수 (고유 식별자로 삭제)
+  const handleRemoveOrder = (orderToRemove: ProductOrder) => {
+    setOrderList(prev => prev.filter(order => 
+      !(order.productId === orderToRemove.productId &&
+        order.temperature === orderToRemove.temperature &&
+        order.size === orderToRemove.size)
+    ));
   };
 
   // 주문 등록 함수 (백엔드 연동)
@@ -142,14 +173,21 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     if (orderList.length === 0) return;
     
     const totalPrice = calculateTotalPrice();
+    console.log('📤 주문 등록 요청:', { orderItems: orderList, totalPrice });
+    
     const result = await createOrder({
       orderItems: [...orderList],
       totalPrice
     });
     
+    console.log('📥 주문 등록 응답:', result);
+    
     if (result.success) {
       alert('주문이 등록되었습니다!');
       setOrderList([]); // 주문 목록 초기화
+      
+      // 주문 목록을 즉시 새로고침
+      await fetchOrdersData();
     } else {
       alert(result.error || '주문 등록에 실패했습니다.');
     }
@@ -303,7 +341,7 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                           <span>{(price * order.amount).toLocaleString()}원</span>
                           <button 
                             className={styles.removeButton}
-                            onClick={() => handleRemoveOrder(index)}
+                            onClick={() => handleRemoveOrder(order)}
                           >
                             삭제
                           </button>
