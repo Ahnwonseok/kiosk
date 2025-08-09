@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,13 +23,16 @@ public class OrdersService {
     private final OrdersRepository ordersRepository;
     private final OrderProductService orderProductService;
     private final OrderStreamService orderStreamService;
-    private static Long orderNumber = 0L;
-    private static int today;
 
     public Long createOrder(OrderRequestDto orderRequestDto) {
+        // 오늘 날짜의 최대 주문번호 조회 (없으면 -1로 가정 후 +1 => 0부터 시작)
+        Long todayMax = ordersRepository.findTodayMaxOrderNumber();
+        long nextOrderNumber = (todayMax == null ? -1 : todayMax) + 1;
+
         // 주문 생성
         Orders order = Orders.builder()
-                .orderNumber(orderNumber++)
+                .orderNumber(nextOrderNumber)
+                .orderDatetime(LocalDateTime.now())
                 .orderStatus(com.kiosk.entity.OrderStatus.waiting)
                 .build();
         Orders savedOrder = ordersRepository.save(order);
@@ -50,7 +54,8 @@ public class OrdersService {
         // SSE로 새 주문 알림 전송
         orderStreamService.sendNewOrder(savedOrder);
 
-        return savedOrder.getId();
+        // 오늘 기준 orderNumber 반환
+        return savedOrder.getOrderNumber();
     }
 
     public void updateOrderStatus(Long orderId, OrderStatus status) {
@@ -72,18 +77,5 @@ public class OrdersService {
         
         // SSE로 주문 삭제 알림 전송
         orderStreamService.sendOrderDeleted(orderId);
-    }
-
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
-    public static void setToday() {
-        today = ZonedDateTime.now().toLocalDate().getDayOfMonth();
-    }
-
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
-    public static void dailyReset() {
-        LocalDate current = ZonedDateTime.now().toLocalDate();
-        if (current.getDayOfMonth() - today >= 1) {
-            orderNumber = 0L;
-        }
     }
 }

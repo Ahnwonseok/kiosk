@@ -3,7 +3,7 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  gap: 50px;
+  gap: 40px;
   width: 60%;
   height: 30%;
   border-radius: 10px;
@@ -12,21 +12,20 @@
 
 .textContents {
   color: var(--color-primary);
-  font-size: var(--font-size-display);
+  font-size: 1.2rem;
 }
 
 .buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   width: 60%;
   height: 30%;
 }
 
 .yesButton {
   width: 47%;
-  height: 50%;
+  height: 70%;
   border-radius: 10px;
   color: var(--color-white);
   background-color: var(--color-second-primary);
@@ -35,9 +34,9 @@
 
 .noButton {
   width: 47%;
-  height: 50%;
+  height: 70%;
   border-radius: 10px;
   color: var(--color-white);
-  background-color: var(--color-gray-100);
+  background-color: var(--color-gray-300);
   font-size: var(--font-size-title-md);
 }

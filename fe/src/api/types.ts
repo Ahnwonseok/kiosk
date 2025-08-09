@@ -1,13 +1,5 @@
 import { ProductOrder } from 'pages/types';
 
-// 백엔드 응답 타입 (실제 받아오는 데이터)
-export interface BackendOrderResponse {
-  id?: number;
-  orderNumber?: number;
-  orderDatetime?: string;
-  orderStatus?: string;
-}
-
 // 주문 관련 타입
 export interface OrderData {
   orderItems: ProductOrder[];
@@ -16,11 +8,15 @@ export interface OrderData {
 
 export interface ManagedOrder {
   orderId: string;
+  orderNumber: string;
   orderTime: string;
   orderItems: ProductOrder[];
   status: 'waiting' | 'processing' | 'completed';
   totalPrice: number;
 }
+
+// 백엔드가 이미 프론트에서 사용하는 스키마로 응답하므로 같은 타입으로 정의
+export type BackendOrderResponse = ManagedOrder;
 
 export interface OrderStatusUpdate {
   status: 'waiting' | 'processing' | 'completed';

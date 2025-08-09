@@ -472,6 +472,23 @@
   background: #5a6fd8;
 }
 
+/* 작은 붉은색 삭제 버튼 */
+.dangerButtonSmall {
+  background: #dc3545;
+  font-size: 0.8rem;
+  flex: 0;
+  padding: 6px 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
+}
+
+.dangerButtonSmall:hover {
+  background: #c82333;
+}
+
 /* 완료된 주문 상태 스타일 */
 .completedStatus {
   color: #28a745;

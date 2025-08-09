@@ -13,6 +13,8 @@ interface MenuItemProps {
   hasIce?: boolean;
   openOrderModal?: () => void;
   setSelectedMenu?: any;
+  showTemperatures?: boolean;
+  shrinkNameToFit?: boolean;
 }
 
 export default function MenuItem({
@@ -28,6 +30,8 @@ export default function MenuItem({
   className = styles.menuItem,
   openOrderModal,
   setSelectedMenu,
+  showTemperatures = true,
+  shrinkNameToFit = false,
 }: MenuItemProps) {
   const clickMenu = () => {
     setSelectedMenu &&
@@ -52,22 +56,35 @@ export default function MenuItem({
         <span
           className={styles.menuName}
           ref={(el) => {
-            if (el) {
-              const container = el.parentElement;
-              if (container) {
-                const scale = Math.min(
-                  container.offsetWidth / el.offsetWidth,
-                  container.offsetHeight / el.offsetHeight
-                );
-                el.style.transform = `scale(${scale})`;
-              }
+            if (!el || !shrinkNameToFit) return;
+            const container = el.parentElement;
+            if (!container) return;
+            // Prevent wrapping and shrink font-size until it fits or min size reached
+            el.style.whiteSpace = 'nowrap';
+            let sizeRem = 1.2;
+            el.style.fontSize = `${sizeRem}rem`;
+            // Loop guard to avoid long loops
+            for (let i = 0; i < 10; i++) {
+              const tooWide = el.scrollWidth > container.clientWidth;
+              if (!tooWide || sizeRem <= 0.8) break;
+              sizeRem -= 0.1;
+              el.style.fontSize = `${sizeRem}rem`;
             }
           }}
         >
           {menuName}
         </span>
       </div>
-      <span style={{ paddingTop: '0.1rem' }}>{menuPrice}</span>
+      {showTemperatures && (
+        <div className={styles.badges}>
+          {hasIce && <span className={`${styles.badge} ${styles.ice}`}>Ice</span>}
+          {hasHot && <span className={`${styles.badge} ${styles.hot}`}>Hot</span>}
+          {!hasIce && !hasHot && (
+            <span className={`${styles.badge} ${styles.hot}`}>Hot</span>
+          )}
+        </div>
+      )}
+      <span className={styles.price}>{menuPrice.toLocaleString('ko-KR')}</span>
     </div>
   );
 }

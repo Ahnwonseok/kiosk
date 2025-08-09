@@ -26,18 +26,7 @@ const fetchJSON = async (url: URL, option?: RequestInit) => {
   return response.json();
 };
 
-// 백엔드 응답을 프론트엔드 형식으로 변환하는 함수
-const transformBackendOrder = (backendOrder: BackendOrderResponse): ManagedOrder => {
-  console.log('🔍 변환할 백엔드 주문 데이터:', backendOrder);
-  
-  return {
-    orderId: (backendOrder.id || backendOrder.orderNumber || Date.now()).toString(),
-    orderTime: backendOrder.orderDatetime || new Date().toISOString(),
-    orderItems: [], // 백엔드에서 주문 상품 정보를 제공하지 않으므로 빈 배열
-    status: (backendOrder.orderStatus || 'waiting') as 'waiting' | 'processing' | 'completed',
-    totalPrice: 0 // 백엔드에서 총 가격 정보를 제공하지 않으므로 0
-  };
-};
+// 현재 백엔드가 프론트 스키마와 동일한 형태를 반환하므로 추가 변환 불필요
 
 // 주문 목록 조회
 export const fetchOrders = async (): Promise<ManagedOrder[]> => {
@@ -47,11 +36,8 @@ export const fetchOrders = async (): Promise<ManagedOrder[]> => {
     
     console.log('🔍 백엔드 주문 데이터:', backendOrders);
     
-    // 백엔드 응답을 프론트엔드 형식으로 변환
-    const transformedOrders = backendOrders.map(transformBackendOrder);
-    console.log('🔍 변환된 주문 데이터:', transformedOrders);
-    
-    return transformedOrders;
+    // 백엔드에서 이미 ManagedOrder 형태를 반환
+    return backendOrders as ManagedOrder[];
   } catch (error) {
     console.error('주문 목록 조회 실패:', error);
     throw new Error('주문 목록을 불러오는데 실패했습니다.');
@@ -71,11 +57,8 @@ export const createOrder = async (orderData: OrderData): Promise<ApiResponse<Man
     
     console.log('🔍 createOrder 백엔드 응답:', backendResponse);
     
-    // 백엔드 응답을 프론트엔드 형식으로 변환
-    const transformedOrder = transformBackendOrder(backendResponse);
-    console.log('🔍 변환된 새 주문:', transformedOrder);
-    
-    return { success: true, data: transformedOrder };
+    // 백엔드에서 이미 ManagedOrder 형태를 반환
+    return { success: true, data: backendResponse as ManagedOrder };
   } catch (error) {
     console.error('주문 등록 실패:', error);
     return { 
@@ -92,9 +75,10 @@ export const updateOrderStatus = async (
 ): Promise<ApiResponse<void>> => {
   try {
     const url = new URL(`api/orders/${orderId}/status`, BASE_API_DOMAIN);
+    // 백엔드가 @RequestParam OrderStatus status 를 요구하므로 쿼리 파라미터로 전달
+    url.searchParams.set('status', statusUpdate.status);
     await fetchJSON(url, {
-      method: 'PUT',
-      body: JSON.stringify(statusUpdate)
+      method: 'PUT'
     });
     
     return { success: true };

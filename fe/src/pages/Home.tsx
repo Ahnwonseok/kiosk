@@ -38,12 +38,8 @@ export default function Home({ navigate }: HomeProps) {
   const handleRemoveAllOrders = () => dispatch({ type: 'RESET' });
   const handleCategoryClick = (clickCategoryId: number) => {
     if (clickCategoryId === selectedCategoryId) return;
-    setMainAnimationClassName(styles.fadeLeave);
-
-    setTimeout(() => {
-      setMainAnimationClassName(styles.fadeEnter);
-      setSelectedCategoryId(clickCategoryId);
-    }, 500);
+    // 즉시 전환: 애니메이션/지연 없이 바로 카테고리 변경
+    setSelectedCategoryId(clickCategoryId);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {

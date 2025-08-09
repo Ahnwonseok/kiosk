@@ -1,4 +1,7 @@
 .home {
+  /* Override theme colors in Home to match BaristaPage palette */
+  --color-primary: #667eea;
+  --color-second-primary: #764ba2;
   position: relative;
   display: flex;
   flex-direction: column;

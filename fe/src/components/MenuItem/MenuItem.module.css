@@ -8,7 +8,7 @@
   border: 1px solid black;
   border-radius: 1rem;
   background-color: var(--color-off-white);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
   transition: all 0.3s ease-in-out;
 }
 
@@ -83,8 +83,39 @@
   text-align: center;
   word-break: keep-all;
   word-wrap: break-word;
-  font-size: 0.9rem;
-  line-height: 1.2;
+  font-size: 1.2rem;
+  line-height: 1;
   max-height: 2.4rem;
   overflow: hidden;
+}
+
+.price {
+  padding-top: 0.4rem;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 1.4rem;
+}
+
+/* Temperature badges */
+.badges {
+  margin-top: 0.25rem;
+  display: flex;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.hot {
+  background: var(--color-hot);
+}
+
+.ice {
+  background: var(--color-ice);
 }

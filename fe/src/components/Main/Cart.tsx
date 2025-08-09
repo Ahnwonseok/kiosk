@@ -1,4 +1,4 @@
-import MenuItem from 'components/MenuItem';
+import CartMenuItem from 'components/Main/CartMenuItem';
 import ConfirmModal from 'components/Modal/ConfirmModal';
 import PaymentModalContent from 'components/Modal/PaymentModalContent';
 import { EXTRA_PRICE } from 'constant';
@@ -25,7 +25,7 @@ export default function Cart({
   products,
   orderList,
 }: CartProps) {
-  const [seconds, setSeconds] = useState(30);
+  const [seconds, setSeconds] = useState(180);
   const intervalRef: { current: null | NodeJS.Timer } = useRef(null);
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
@@ -52,7 +52,7 @@ export default function Cart({
 
   const handlePaymentCancelButtonClick = () => {
     setShowPaymentModal(false);
-    resetCounter(30);
+    resetCounter(180);
   };
 
   const confirmRemoveAllOrders = () => {
@@ -62,7 +62,7 @@ export default function Cart({
 
   const closeConfirmModal = () => {
     setShowConfirmModal(false);
-    resetCounter(30);
+    resetCounter(180);
   };
 
   const removeAllOrders = () => {
@@ -79,7 +79,7 @@ export default function Cart({
   }, []);
 
   useEffect(() => {
-    setSeconds(30);
+    setSeconds(180);
   }, [orderList]);
 
   useEffect(() => {
@@ -97,12 +97,11 @@ export default function Cart({
           return (
             <div key={index} className={styles.itemWrapper}>
               <div className={styles.amount}>{amount}</div>
-              <MenuItem
-                className={styles.orderItem}
-                productId={menu.productId}
+              <CartMenuItem
+                className={styles.orderItemAuto}
                 menuName={menu.name}
-                menuImg={menu.imgUrl}
-                menuPrice={size === 'Large' ? menu.price + EXTRA_PRICE : menu.price}
+                temperature={order.temperature}
+                price={size === 'Large' ? menu.price + EXTRA_PRICE : menu.price}
               />
               <button className={styles.menuCancelButton} onClick={() => handleRemoveOrder(menu.productId, size)}>
                 X
@@ -113,9 +112,12 @@ export default function Cart({
       </div>
       <div className={styles.buttons}>
         <span>
-          총 결제 금액 <span className={styles.totalPrice}>₩ {totalPrice.toLocaleString('ko-KR')}</span>
+          <span className={styles.totalLabel}>총 결제 금액 : </span>
+          <span className={styles.totalPrice}>₩{totalPrice.toLocaleString('ko-KR')}</span>
         </span>
-        <span className={styles.timer}>{seconds}초 뒤에 메뉴가 전체 취소돼요!</span>
+        {seconds <= 30 && (
+          <span className={styles.timer}>{seconds}초 뒤에 메뉴가 전체 취소돼요!</span>
+        )}
         <button onClick={confirmRemoveAllOrders} className={styles.allCancelButton}>
           전체취소
         </button>

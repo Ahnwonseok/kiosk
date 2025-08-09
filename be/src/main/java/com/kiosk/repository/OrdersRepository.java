@@ -21,5 +21,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT o FROM Orders o WHERE DATE(o.orderDatetime) = :date")
     List<Orders> findOrdersByDate(@Param("date") String date);
 
-//    Integer save(Orders orders);
+    // 오늘 날짜의 최대 orderNumber 조회 (없으면 null 반환)
+    @Query("SELECT MAX(o.orderNumber) FROM Orders o WHERE DATE(o.orderDatetime) = CURRENT_DATE")
+    Long findTodayMaxOrderNumber();
 }

@@ -35,16 +35,24 @@ public class OrderProductService {
                             .name(cartInDto.getName())
                             .size(cartInDto.getSize())
                             .temperature(cartInDto.getTemperature())
-                            .unitPrice(product != null ? product.getPrice().intValue() : 0)
-                            .totalPrice(product != null ? product.getPrice().intValue() * cartInDto.getAmount() : 0)
                             .build();
                 })
                 .toList();
 
         orderProductRepository.saveAll(orderProductEntities);
     }
+
+    @Transactional
+    public void saveOrderProducts(List<OrderProduct> orderProducts) {
+        orderProductRepository.saveAll(orderProducts);
+    }
+
+    public List<OrderProduct> getOrderProductsByOrder(Orders order) {
+        return orderProductRepository.findByOrder(order);
+    }
+
+    @Transactional
+    public void deleteOrderProductsByOrder(Orders order) {
+        orderProductRepository.deleteByOrder(order);
+    }
 }
-//        for (PaymentRequestDto.CartInDto orderProduct : orderProducts) {
-//            OrderProduct completedOrderProduct = orderProduct.toEntity(orderId);
-//            orderProductRepository.save(completedOrderProduct);
-//        }

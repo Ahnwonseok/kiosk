@@ -5,7 +5,7 @@ import useProducts from 'hooks/useProducts';
 import { formatAllCategories } from 'utils';
 import { CategoryInfo, ProductInfo, ProductOrder } from './types';
 import useOutsideClick from '../hooks/useOutsideClick';
-import { fetchOrders, createOrder, updateOrderStatus, BASE_API_DOMAIN } from 'api';
+import { fetchOrders, createOrder, updateOrderStatus, deleteOrder, BASE_API_DOMAIN } from 'api';
 import { ManagedOrder, OrderEvent } from 'api/types';
 import styles from './BaristaPage.module.css';
 
@@ -183,7 +183,7 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     console.log('📥 주문 등록 응답:', result);
     
     if (result.success) {
-      alert('주문이 등록되었습니다!');
+      //alert('주문이 등록되었습니다!');
       setOrderList([]); // 주문 목록 초기화
       
       // 주문 목록을 즉시 새로고침
@@ -196,9 +196,29 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
   // 주문 상태 변경 함수 (백엔드 연동)
   const handleStatusChange = async (orderId: string, newStatus: 'waiting' | 'processing' | 'completed') => {
     const result = await updateOrderStatus(orderId, { status: newStatus });
-    
-    if (!result.success) {
+
+    if (result.success) {
+      // 성공 시 즉시 UI 반영 (SSE가 올 때까지 기다리지 않음)
+      setManagedOrders(prev => 
+        prev.map(order => 
+          order.orderId === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    } else {
       alert(result.error || '주문 상태 변경에 실패했습니다.');
+    }
+  };
+
+  // 주문 삭제 함수 (백엔드 연동)
+  const handleDeleteOrder = async (orderId: string) => {
+    const confirmed = window.confirm('삭제하시겠습니까?');
+    if (!confirmed) return;
+
+    const result = await deleteOrder(orderId);
+    if (result.success) {
+      setManagedOrders(prev => prev.filter(order => order.orderId !== orderId));
+    } else {
+      alert(result.error || '주문 삭제에 실패했습니다.');
     }
   };
 
@@ -410,9 +430,9 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                   </div>
                 ) : (
                   filteredOrders.map((order) => (
-                    <div key={order.orderId} className={styles.orderCard}>
+                    <div key={order.orderNumber} className={styles.orderCard}>
                       <div className={styles.orderHeader}>
-                        <span className={styles.orderNumber}>{order.orderId}</span>
+                        <span className={styles.orderNumber}>{order.orderNumber}</span>
                         <span className={styles.orderTime}>{order.orderTime}</span>
                       </div>
                       <div className={styles.orderItems}>
@@ -424,12 +444,20 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                       </div>
                       <div className={styles.orderActions}>
                         {order.status === 'waiting' && (
-                          <button 
-                            className={styles.actionButton}
-                            onClick={() => handleStatusChange(order.orderId, 'processing')}
-                          >
-                            진행중
-                          </button>
+                          <>
+                            <button 
+                              className={styles.actionButton}
+                              onClick={() => handleStatusChange(order.orderId, 'processing')}
+                            >
+                              진행중
+                            </button>
+                            <button
+                              className={`${styles.actionButton} ${styles.dangerButtonSmall}`}
+                              onClick={() => handleDeleteOrder(order.orderId)}
+                            >
+                              삭제
+                            </button>
+                          </>
                         )}
                         {order.status === 'processing' && (
                           <button 

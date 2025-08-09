@@ -1,0 +1,40 @@
+.cartMenuItem {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  width: auto;
+  max-width: 14rem;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: var(--font-weight-bold);
+  font-size: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.temp {
+  color: var(--color-gray-300);
+  font-size: 1rem;
+}
+
+.price {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 1rem;
+}
+
+/* Temperature color variants */
+.tempHot {
+  color: var(--color-hot);
+  font-weight: var(--font-weight-bold);
+}
+
+.tempIce {
+  color: var(--color-ice);
+  font-weight: var(--font-weight-bold);
+}
+

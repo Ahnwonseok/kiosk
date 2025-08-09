@@ -44,6 +44,8 @@ export default function OrderModal({ menu, closeOrderModal, handleAddOrder }: Or
           hasIce={menu.hasIce}
           hasLarge={menu.hasLarge}
           hasSmall={menu.hasSmall}
+          showTemperatures={false}
+          shrinkNameToFit
         />
         <MenuOption
           hasLarge={menu.hasLarge}

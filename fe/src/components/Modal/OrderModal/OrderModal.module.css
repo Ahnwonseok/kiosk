@@ -168,8 +168,8 @@
 
 .menuItem {
   position: relative;
-  width: 9rem;
-  height: 9rem;
+  width: 12rem;
+  height: 12rem;
   /* gap: 0.5rem; */
   display: flex;
   flex-direction: column;
