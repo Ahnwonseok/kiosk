@@ -90,6 +90,15 @@ public class OrderStreamService {
         sendOrderUpdate("message", event);
     }
 
+    // Overload: send a DTO directly (e.g., ManagedOrderResponseDto)
+    public void sendNewOrder(Object orderDto) {
+        Map<String, Object> wrapped = Map.of(
+                "type", "NEW_ORDER",
+                "order", orderDto
+        );
+        sendOrderUpdate("message", wrapped);
+    }
+
     public void sendOrderStatusUpdate(Orders order) {
         OrderEvent event = OrderEvent.builder()
                 .type("STATUS_CHANGE")

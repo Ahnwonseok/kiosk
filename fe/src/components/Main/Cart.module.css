@@ -28,6 +28,7 @@
   background-color: var(--color-white);
   width: auto;
   height: auto;
+  min-width: 8rem;
   max-width: 16rem;
 }
 
@@ -115,7 +116,7 @@
 }
 
 .orderButton {
-  padding: 1rem 5rem;
+  padding: 1rem 4rem;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-second-primary) 100%);
   color: var(--color-white);
   font-family: var(--font-family);
@@ -124,13 +125,17 @@
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
 }
 
-.orderButton:hover {
+/* .orderButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
+} */
 
 .timer {
   font-family: var(--font-family);
@@ -150,13 +155,14 @@
   font-weight: var(--font-weight-bold);
   font-size: 1.5rem;
   color: var(--color-primary);
+  padding-right: 0.4rem;
 }
 
 /* 총 결제 금액 라벨 스타일 */
 .totalLabel {
   font-family: var(--font-family);
   font-weight: var(--font-weight-bold);
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   margin-right: 0.4rem;
 }
 

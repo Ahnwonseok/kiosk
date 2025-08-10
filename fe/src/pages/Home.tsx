@@ -33,9 +33,13 @@ export default function Home({ navigate }: HomeProps) {
   const isOrderListEmpty = orderList.length === 0;
 
   const handleAddOrder = (menuOrder: ProductOrder) => dispatch({ type: 'ADD_ORDER', payload: { newOrder: menuOrder } });
-  const handleRemoveOrder = (productId: number, size: string) =>
-    dispatch({ type: 'REMOVE_ORDER', payload: { productId: productId, size: size } });
+  const handleRemoveOrder = (productId: number, size: string, temperature: string) =>
+    dispatch({ type: 'REMOVE_ORDER', payload: { productId, size, temperature } });
   const handleRemoveAllOrders = () => dispatch({ type: 'RESET' });
+  const handleIncrementOrder = (productId: number, size: string, temperature: string) =>
+    dispatch({ type: 'INCREMENT_ORDER', payload: { productId, size, temperature } });
+  const handleDecrementOrder = (productId: number, size: string, temperature: string) =>
+    dispatch({ type: 'DECREMENT_ORDER', payload: { productId, size, temperature } });
   const handleCategoryClick = (clickCategoryId: number) => {
     if (clickCategoryId === selectedCategoryId) return;
     // 즉시 전환: 애니메이션/지연 없이 바로 카테고리 변경
@@ -95,6 +99,8 @@ export default function Home({ navigate }: HomeProps) {
           homeRef={homeRef}
           products={formattedMenus}
           orderList={orderList}
+          handleIncrementOrder={handleIncrementOrder}
+          handleDecrementOrder={handleDecrementOrder}
           handleRemoveOrder={handleRemoveOrder}
           handleRemoveAllOrders={handleRemoveAllOrders}
         />

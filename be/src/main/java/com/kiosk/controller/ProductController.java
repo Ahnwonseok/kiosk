@@ -55,7 +55,7 @@ public class ProductController {
 
         return categories.stream()
                 .map(category -> new ProductCategoryResponse(
-                        category.getCategoryType().name(),
+                        category.getCategoryName(),
                         category.getId(),
                         products.stream()
                                 .filter(product -> product.getCategory() != null && product.getCategory().getId().equals(category.getId()))

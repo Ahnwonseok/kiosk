@@ -27,6 +27,40 @@
   font-size: 1rem;
 }
 
+.priceControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ctrlBtn {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: var(--color-white);
+  color: var(--color-gray-700);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ctrlBtn:hover:not(:disabled) {
+  background: var(--color-gray-50);
+}
+
+.ctrlBtn:active:not(:disabled) {
+  background: var(--color-gray-100);
+}
+
+.ctrlBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Temperature color variants */
 .tempHot {
   color: var(--color-hot);

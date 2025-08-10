@@ -1,5 +1,6 @@
-import { Button, ImgButton } from 'components/atoms/Button';
+import { Button } from 'components/atoms/Button';
 import styles from './OrderModal.module.css';
+import { useEffect } from 'react';
 
 interface MenuOptionProps extends SizeOptionProps, TempOptionProps, AmountCounterProps {
   setSelectedSize: (size: string) => void;
@@ -37,56 +38,42 @@ export default function MenuOption({
   amount,
   setAmount,
 }: MenuOptionProps) {
+  // Auto-select size when size option is not shown (current products have only one size)
+  useEffect(() => {
+    const autoSize = hasSmall ? 'Small' : hasLarge ? 'Large' : '';
+    if (autoSize && selectedSize !== autoSize) {
+      setSelectedSize(autoSize);
+    }
+  }, [hasSmall, hasLarge, selectedSize, setSelectedSize]);
+
   return (
     <div className={styles.optionWrap}>
       <TempOption hasHot={hasHot} hasIce={hasIce} selectedTemp={selectedTemp} setSelectedTemp={setSelectedTemp} />
-      <SizeOption
-        hasSmall={hasSmall}
-        hasLarge={hasLarge}
-        selectedSize={selectedSize}
-        setSelectedSize={setSelectedSize}
-      />
+      {/* Size selection removed intentionally */}
       <AmountCounter amount={amount} setAmount={setAmount} />
     </div>
   );
 }
 
-function SizeOption({ hasSmall, hasLarge, selectedSize, setSelectedSize }: SizeOptionProps) {
-  return (
-    <div className={hasSmall && hasLarge ? styles.dualButtonWrap : styles.singleButtonWrap}>
-      {hasSmall && (
-        <ImgButton
-          label={'Small'}
-          className={styles.smallOptionButton}
-          isSelected={selectedSize === 'Small'}
-          selectedClassName={styles.selectedSize}
-          imgSrc="assets/icon/drink.png"
-          imgAlt=""
-          onClick={() => setSelectedSize('Small')}
-        />
-      )}
-      {hasLarge && (
-        <ImgButton
-          label={'Large'}
-          className={styles.largeOptionButton}
-          isSelected={selectedSize === 'Large'}
-          selectedClassName={styles.selectedSize}
-          imgSrc="assets/icon/drink.png"
-          imgAlt=""
-          onClick={() => setSelectedSize('Large')}
-        />
-      )}
-    </div>
-  );
-}
+// Size selection UI removed
 
 function TempOption({ hasHot, hasIce, selectedTemp, setSelectedTemp }: TempOptionProps) {
+  // Auto-select when only one temperature option is available
+  useEffect(() => {
+    if (!hasHot && hasIce && selectedTemp !== 'Ice') {
+      setSelectedTemp('Ice');
+    }
+    if (hasHot && !hasIce && selectedTemp !== 'Hot') {
+      setSelectedTemp('Hot');
+    }
+  }, [hasHot, hasIce, selectedTemp, setSelectedTemp]);
+
   return (
     <div className={hasHot && hasIce ? styles.dualButtonWrap : styles.singleButtonWrap}>
       {hasHot && (
         <Button
           label={'Hot'}
-          className={styles.optionButton}
+          className={`${styles.optionButton} ${styles.hotButton}`}
           isSelected={selectedTemp === 'Hot'}
           selectedClassName={styles.selectedHot}
           onClick={() => setSelectedTemp('Hot')}
@@ -95,7 +82,7 @@ function TempOption({ hasHot, hasIce, selectedTemp, setSelectedTemp }: TempOptio
       {hasIce && (
         <Button
           label={'Ice'}
-          className={styles.optionButton}
+          className={`${styles.optionButton} ${styles.iceButton}`}
           isSelected={selectedTemp === 'Ice'}
           selectedClassName={styles.selectedIce}
           onClick={() => setSelectedTemp('Ice')}

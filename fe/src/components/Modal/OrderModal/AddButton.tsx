@@ -16,7 +16,7 @@ export default function AddButton({
   selectedSize,
   selectedTemp,
 }: AddButtonProps) {
-  const isDisabled = selectedSize === '' || selectedTemp === '';
+  const isDisabled = selectedTemp === '';
   const handleAddButtonClick = () => {
     closeOrderModal();
     sendOrderData(handleAddOrder);

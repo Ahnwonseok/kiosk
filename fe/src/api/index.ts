@@ -1,7 +1,8 @@
 import { CategoryInfo, OrderResult, OrderSuccessInfo, ProductOrder } from 'pages/types';
 import { formatMenuOptionOrderList } from 'utils';
 
-export const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
+//export const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
+export const BASE_API_DOMAIN = new URL(`http://1.235.32.57:8081`);
 //export const BASE_API_DOMAIN = new URL(`http://192.168.123.101:8081`);
 //const BASE_API_DOMAIN = new URL(`http://182.229.16.44:8081`);
 //const BASE_API_DOMAIN = new URL(`http://192.168.0.42:8081`);
@@ -155,3 +156,4 @@ export async function login(username: string, password: string) {
 // 새로운 API 모듈들 export
 export * from './orders';
 export * from './types';
+export * from './menu';

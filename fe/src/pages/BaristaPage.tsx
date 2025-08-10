@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { LoadingIndicator } from 'components/LoadingIndicator/LoadingIndicator';
 import OrderModal from 'components/Modal/OrderModal';
+import MenuAdmin from 'components/MenuAdmin';
 import useProducts from 'hooks/useProducts';
 import { formatAllCategories } from 'utils';
 import { CategoryInfo, ProductInfo, ProductOrder } from './types';
@@ -47,7 +48,14 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     
     try {
       const orders = await fetchOrders();
-      setManagedOrders(orders);
+      // Ensure completedAt exists for completed orders if backend doesn't supply it
+      const normalized = orders.map((o) => {
+        if (o.status === 'completed' && !o.completedAt) {
+          return { ...o, completedAt: o.orderTime } as any;
+        }
+        return o as any;
+      });
+      setManagedOrders(normalized);
     } catch (error) {
       setOrdersError(error instanceof Error ? error.message : '주문 목록 조회에 실패했습니다.');
     } finally {
@@ -56,64 +64,132 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     }
   };
 
-  // 실시간 업데이트 (Server-Sent Events)
+  // 실시간 업데이트 (Server-Sent Events) + 자동 재연결
   useEffect(() => {
-    const eventSource = new EventSource(`${BASE_API_DOMAIN}api/orders/stream`);
-    
-    eventSource.onmessage = (event) => {
+    const sseUrl = new URL('api/orders/stream', BASE_API_DOMAIN);
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) sseUrl.searchParams.set('token', jwt);
+
+    let eventSource: EventSource | null = null;
+    let retryDelayMs = 1000;
+    let stopped = false;
+
+    const connect = () => {
+      if (stopped) return;
       try {
-        console.log('📋 SSE 이벤트 수신:', event.data);
-        const data: OrderEvent = JSON.parse(event.data);
-        
-        switch (data.type) {
-          case 'NEW_ORDER':
-            console.log('📋 새 주문 이벤트:', data.order);
-            if (data.order) {
-              setManagedOrders(prev => {
-                const newOrders = [...prev, data.order!];
-                console.log('📋 업데이트된 주문 목록:', newOrders);
-                return newOrders;
-              });
+        eventSource = new EventSource(sseUrl.toString());
+        if (!eventSource) return;
+        eventSource.onopen = () => {
+          console.log('🔗 SSE 연결 수립:', sseUrl.toString());
+          retryDelayMs = 1000; // reset backoff on success
+        };
+        eventSource.onmessage = (event: MessageEvent) => {
+          try {
+            console.log('📋 SSE 이벤트 수신:', event.data);
+            const data: OrderEvent = JSON.parse(event.data);
+            console.log('📋 파싱된 SSE 데이터:', data);
+            switch (data.type) {
+              case 'NEW_ORDER':
+                console.log('📋 새 주문 이벤트:', data.order);
+                if (data.order) {
+                  setManagedOrders(prev => {
+                    if (prev.some(o => o.orderId === data.order!.orderId)) return prev;
+                    const newOrders = [...prev, data.order!];
+                    console.log('📋 업데이트된 주문 목록:', newOrders);
+                    return newOrders;
+                  });
+                }
+                break;
+              case 'STATUS_CHANGE':
+                console.log('📋 상태 변경 이벤트 수신됨:', data.orderId, data.status);
+                console.log('📋 현재 managedOrders:', managedOrders);
+                if (data.orderId && data.status) {
+                  setManagedOrders(prev => {
+                    console.log('📋 상태 변경 전 주문 목록:', prev);
+                    const updated = prev.map(order => {
+                      console.log('order.orderId ', order.orderId);
+                      console.log('data.orderId ', data.orderId);
+                      console.log('order.orderId != data.orderId ', order.orderId != data.orderId);
+                      if (order.orderId != data.orderId) return order;
+                      const next: any = { ...order, status: data.status as 'waiting' | 'processing' | 'completed' };
+                      if (data.status === 'completed') {
+                        next.completedAt = new Date().toISOString();
+                      }
+                      console.log('📋 주문 상태 업데이트:', order.orderId, '->', next.status);
+                      return next;
+                    }).filter((order): order is ManagedOrder => order !== undefined);
+                    
+                    console.log('📋 상태 변경 후 주문 목록:', updated);
+                    return updated;
+                  });
+                } else {
+                  console.warn('📋 STATUS_CHANGE 이벤트에 orderId 또는 status가 없음:', data);
+                }
+                break;
+              case 'ORDER_DELETED':
+                console.log('📋 주문 삭제 이벤트:', data.orderId);
+                if (data.orderId) {
+                  setManagedOrders(prev => 
+                    prev.filter(order => order.orderId !== data.orderId)
+                  );
+                }
+                break;
             }
-            break;
-          case 'STATUS_CHANGE':
-            console.log('📋 상태 변경 이벤트:', data.orderId, data.status);
-            if (data.orderId && data.status) {
-              setManagedOrders(prev => 
-                prev.map(order => 
-                  order.orderId === data.orderId 
-                    ? { ...order, status: data.status as 'waiting' | 'processing' | 'completed' }
-                    : order
-                )
-              );
-            }
-            break;
-          case 'ORDER_DELETED':
-            console.log('📋 주문 삭제 이벤트:', data.orderId);
-            if (data.orderId) {
-              setManagedOrders(prev => 
-                prev.filter(order => order.orderId !== data.orderId)
-              );
-            }
-            break;
+          } catch (err) {
+            console.error('SSE 데이터 파싱 오류:', err);
+          }
+        };
+        eventSource.onerror = (error: Event) => {
+          console.error('SSE 연결 오류:', error);
+          if (eventSource) {
+            try { eventSource.close(); } catch {}
+            eventSource = null;
+          }
+          if (!stopped) {
+            setTimeout(connect, retryDelayMs);
+            retryDelayMs = Math.min(retryDelayMs * 2, 30000);
+          }
+        };
+      } catch (e) {
+        console.error('SSE 초기화 실패:', e);
+        if (!stopped) {
+          setTimeout(connect, retryDelayMs);
+          retryDelayMs = Math.min(retryDelayMs * 2, 30000);
         }
-      } catch (error) {
-        console.error('SSE 데이터 파싱 오류:', error);
       }
     };
-    
-    eventSource.onerror = (error) => {
-      console.error('SSE 연결 오류:', error);
-    };
+
+    connect();
     
     return () => {
-      eventSource.close();
+      stopped = true;
+      if (eventSource) eventSource.close();
     };
   }, []);
 
   // 컴포넌트 마운트 시 주문 목록 조회
   useEffect(() => {
     fetchOrdersData();
+    // Listen for local broadcast messages to sync orders without SSE
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('orders');
+      bc.onmessage = (event) => {
+        const data = event.data;
+        if (!data) return;
+        if (data.type === 'NEW_ORDER' && data.order) {
+          setManagedOrders(prev => [...prev, data.order]);
+        }
+        if (data.type === 'REFRESH_ORDERS') {
+          fetchOrdersData();
+        }
+      };
+    } catch (e) {
+      // BroadcastChannel not supported; ignore
+    }
+    return () => {
+      if (bc) bc.close();
+    };
   }, []);
 
   const handleLogout = () => {
@@ -173,21 +249,21 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     if (orderList.length === 0) return;
     
     const totalPrice = calculateTotalPrice();
-    console.log('📤 주문 등록 요청:', { orderItems: orderList, totalPrice });
     
     const result = await createOrder({
       orderItems: [...orderList],
       totalPrice
     });
     
-    console.log('📥 주문 등록 응답:', result);
-    
     if (result.success) {
-      //alert('주문이 등록되었습니다!');
       setOrderList([]); // 주문 목록 초기화
-      
-      // 주문 목록을 즉시 새로고침
-      await fetchOrdersData();
+      // SSE 또는 BroadcastChannel로 NEW_ORDER가 전달될 때 목록이 갱신됨
+      // 백엔드 응답에서 orderId를 직접 사용
+      const orderNumber = (result as any).data.orderNumber;
+
+      if (orderNumber !== undefined) {
+        alert(`주문번호는 ${orderNumber}입니다.`);
+      }
     } else {
       alert(result.error || '주문 등록에 실패했습니다.');
     }
@@ -195,16 +271,16 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
 
   // 주문 상태 변경 함수 (백엔드 연동)
   const handleStatusChange = async (orderId: string, newStatus: 'waiting' | 'processing' | 'completed') => {
+    console.log('🔄 주문 상태 변경 시작:', orderId, '->', newStatus);
+    
     const result = await updateOrderStatus(orderId, { status: newStatus });
 
     if (result.success) {
-      // 성공 시 즉시 UI 반영 (SSE가 올 때까지 기다리지 않음)
-      setManagedOrders(prev => 
-        prev.map(order => 
-          order.orderId === orderId ? { ...order, status: newStatus } : order
-        )
-      );
+      // SSE를 통해 실시간 업데이트가 올 때까지 기다림 (다른 기기와 동기화)
+      console.log(`✅ 주문 ${orderId} 상태를 ${newStatus}로 변경 요청 완료. SSE 업데이트 대기 중...`);
+      console.log('🔄 SSE STATUS_CHANGE 이벤트 수신 대기 중...');
     } else {
+      console.error('❌ 주문 상태 변경 실패:', result.error);
       alert(result.error || '주문 상태 변경에 실패했습니다.');
     }
   };
@@ -238,6 +314,13 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
       
       return total + (price * order.amount);
     }, 0);
+  };
+
+  // 시간 포맷: HH:mm (날짜 제외)
+  const formatTimeHM = (dateTime: string) => {
+    const date = new Date(dateTime);
+    if (Number.isNaN(date.getTime())) return dateTime;
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   // 상태별 주문 필터링
@@ -349,14 +432,14 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                       if (!product) return null;
                       
                       let price = product.price;
-                      if (order.size === 'Large') {
-                        price += 500; // Large 사이즈 추가 가격
-                      }
+                      // if (order.size === 'Large') {
+                      //   price += 500; // Large 사이즈 추가 가격
+                      // }
                       
                       return (
                         <div key={index} className={styles.orderItem}>
                           <span>
-                            {order.name} ({order.size}, {order.temperature}) x {order.amount}
+                            {order.name} ({order.temperature}) x {order.amount}
                           </span>
                           <span>{(price * order.amount).toLocaleString()}원</span>
                           <button 
@@ -429,18 +512,35 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                         '완료된 주문이 없습니다'}</p>
                   </div>
                 ) : (
-                  filteredOrders.map((order) => (
+                  (selectedStatus === 'completed'
+                    ? [...filteredOrders].sort((a, b) => {
+                        const ta = (a as any).completedAt || a.orderTime;
+                        const tb = (b as any).completedAt || b.orderTime;
+                        return new Date(tb).getTime() - new Date(ta).getTime();
+                      })
+                    : filteredOrders
+                  ).map((order) => (
                     <div key={order.orderNumber} className={styles.orderCard}>
                       <div className={styles.orderHeader}>
-                        <span className={styles.orderNumber}>{order.orderNumber}</span>
-                        <span className={styles.orderTime}>{order.orderTime}</span>
+                        <span className={styles.orderNumber}>{order.orderNumber ?? order.orderId}</span>
+                        <span className={styles.orderTime}>{formatTimeHM(order.orderTime)}</span>
                       </div>
                       <div className={styles.orderItems}>
-                        {order.orderItems.map((item, index) => (
-                          <div key={index}>
-                            {item.name} ({item.size}, {item.temperature}) x {item.amount}
-                          </div>
-                        ))}
+                        {(() => {
+                          const aggregated: { [key: string]: { name: string; size: string; temperature: string; amount: number } } = {};
+                          for (const item of order.orderItems) {
+                            const key = `${item.name}|${item.size}|${item.temperature}`;
+                            if (!aggregated[key]) {
+                              aggregated[key] = { name: item.name, size: item.size, temperature: item.temperature, amount: 0 };
+                            }
+                            aggregated[key].amount += item.amount;
+                          }
+                          return Object.values(aggregated).map((agg, idx) => (
+                            <div key={idx}>
+                              {agg.name} ({agg.temperature}) x {agg.amount}
+                            </div>
+                          ));
+                        })()}
                       </div>
                       <div className={styles.orderActions}>
                         {order.status === 'waiting' && (
@@ -481,12 +581,7 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
 
         {activeTab === 'menu' && (
           <div className={styles.tabContent}>
-            <h2>메뉴 관리</h2>
-            <p>메뉴 추가, 수정, 삭제 기능이 여기에 들어갈 예정입니다.</p>
-            <div className={styles.placeholder}>
-              <p>🚧 메뉴 관리 기능 개발 중 🚧</p>
-              <p>메뉴 등록, 가격 변경, 품절 처리 등의 기능이 추가될 예정입니다.</p>
-            </div>
+            <MenuAdmin />
           </div>
         )}
 

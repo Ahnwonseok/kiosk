@@ -14,7 +14,6 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
-    @Enumerated(EnumType.STRING) //EnumType.ORDINAL이 기본값
     @Column(name = "category_name")
-    private CategoryType categoryType;
+    private String categoryName;
 }

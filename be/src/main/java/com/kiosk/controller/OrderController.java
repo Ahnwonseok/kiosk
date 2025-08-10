@@ -59,7 +59,7 @@ public class OrderController {
             log.info("주문이 성공적으로 생성되었습니다. 주문번호: {}", orderNumber);
             body.put("success", true);
             body.put("message", "주문이 성공적으로 생성되었습니다.");
-            body.put("orderId", orderNumber);
+            body.put("orderNumber", orderNumber);
             return ResponseEntity.ok(body);
         } catch (Exception e) {
             log.error("주문 생성 중 오류 발생: {}", e.getMessage());

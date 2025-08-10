@@ -13,6 +13,8 @@ export interface ManagedOrder {
   orderItems: ProductOrder[];
   status: 'waiting' | 'processing' | 'completed';
   totalPrice: number;
+  // Frontend-only: timestamp when the order was marked completed
+  completedAt?: string;
 }
 
 // 백엔드가 이미 프론트에서 사용하는 스키마로 응답하므로 같은 타입으로 정의

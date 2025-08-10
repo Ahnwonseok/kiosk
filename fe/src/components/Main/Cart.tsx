@@ -1,11 +1,11 @@
 import CartMenuItem from 'components/Main/CartMenuItem';
 import ConfirmModal from 'components/Modal/ConfirmModal';
-import PaymentModalContent from 'components/Modal/PaymentModalContent';
+import { createOrder } from 'api';
 import { EXTRA_PRICE } from 'constant';
 import { ProductOrder, Products } from 'pages/types';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { formatSameProductIdList } from 'utils';
+import { formatMenuOptionOrderList } from 'utils';
 import styles from './Cart.module.css';
 
 interface CartProps {
@@ -13,7 +13,9 @@ interface CartProps {
   orderList: ProductOrder[];
   products: Products;
   navigate: (path: string) => void;
-  handleRemoveOrder: (productId: number, size: string) => void;
+  handleIncrementOrder: (productId: number, size: string, temperature: string) => void;
+  handleDecrementOrder: (productId: number, size: string, temperature: string) => void;
+  handleRemoveOrder: (productId: number, size: string, temperature: string) => void;
   handleRemoveAllOrders: () => void;
 }
 
@@ -21,6 +23,8 @@ export default function Cart({
   navigate,
   homeRef,
   handleRemoveAllOrders,
+  handleIncrementOrder,
+  handleDecrementOrder,
   handleRemoveOrder,
   products,
   orderList,
@@ -30,7 +34,7 @@ export default function Cart({
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
-  const formattedSameProduct = formatSameProductIdList(orderList);
+  const formattedSameProduct = formatMenuOptionOrderList(orderList);
   const totalPrice = orderList.reduce((acc, cur) => {
     const { productId, size, amount } = cur;
     const price = size === 'Large' ? products[productId].price + EXTRA_PRICE : products[productId].price;
@@ -45,12 +49,42 @@ export default function Cart({
     }, 1000);
   };
 
-  const handlePaymentButtonClick = () => {
+  const handleSubmitOrder = async () => {
     clearInterval(intervalRef.current!);
-    setShowPaymentModal(true);
+    if (orderList.length === 0) return;
+    try {
+      const result = await createOrder({ orderItems: [...orderList], totalPrice });
+      if (result.success) {
+        const orderNumber = (result as any).data.orderNumber;
+        console.log(orderNumber);
+        if (orderNumber !== undefined) {
+          alert(`주문번호는 ${orderNumber}입니다.`);
+        }
+        try {
+          // Notify Barista page via BroadcastChannel for real-time update
+          const bc = new BroadcastChannel('orders');
+          if (result.data) {
+            bc.postMessage({ type: 'NEW_ORDER', order: result.data });
+          } else {
+            bc.postMessage({ type: 'REFRESH_ORDERS' });
+          }
+          bc.close();
+        } catch (e) {
+          // no-op if BroadcastChannel unsupported
+        }
+        handleRemoveAllOrders();
+      } else {
+        alert(result.error || '주문 등록에 실패했습니다.');
+        resetCounter(180);
+      }
+    } catch (e) {
+      alert('주문 등록에 실패했습니다.');
+      resetCounter(180);
+    }
   };
 
   const handlePaymentCancelButtonClick = () => {
+    // deprecated: 결제 모달 사용 안 함
     setShowPaymentModal(false);
     resetCounter(180);
   };
@@ -96,14 +130,17 @@ export default function Cart({
           const menu = products[productId];
           return (
             <div key={index} className={styles.itemWrapper}>
-              <div className={styles.amount}>{amount}</div>
               <CartMenuItem
                 className={styles.orderItemAuto}
                 menuName={menu.name}
                 temperature={order.temperature}
                 price={size === 'Large' ? menu.price + EXTRA_PRICE : menu.price}
+                onDecrement={() => handleDecrementOrder(menu.productId, size, order.temperature)}
+                onIncrement={() => handleIncrementOrder(menu.productId, size, order.temperature)}
+                quantity={amount}
               />
-              <button className={styles.menuCancelButton} onClick={() => handleRemoveOrder(menu.productId, size)}>
+              <div className={styles.amount}>{amount}</div>
+              <button className={styles.menuCancelButton} onClick={() => handleRemoveOrder(menu.productId, size, order.temperature)}>
                 X
               </button>
             </div>
@@ -122,19 +159,10 @@ export default function Cart({
           전체취소
         </button>
       </div>
-      <button className={styles.orderButton} onClick={handlePaymentButtonClick}>
-        결제하기
+      <button className={styles.orderButton} onClick={handleSubmitOrder}>
+        주문하기
       </button>
-      {showPaymentModal &&
-        createPortal(
-          <PaymentModalContent
-            navigate={navigate}
-            totalPrice={totalPrice}
-            orderList={orderList}
-            handlePaymentCancelButtonClick={handlePaymentCancelButtonClick}
-          />,
-          homeRef.current!
-        )}
+      {/* 결제 모달 제거 */}
       {showConfirmModal &&
         createPortal(
           <ConfirmModal
