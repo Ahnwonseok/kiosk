@@ -111,3 +111,4 @@ jwt:
 - JWT (jjwt 0.12.3)
 - MariaDB Connector
 - Lombok 
+- test
