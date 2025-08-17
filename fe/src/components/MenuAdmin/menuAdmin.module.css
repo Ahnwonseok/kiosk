@@ -34,31 +34,71 @@
   cursor: pointer;
   text-align: left;
   padding: 8px 4px;
+  font-size: 1rem;
 }
 .catActions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  align-items: center;
 }
 .active .catName {
   font-weight: var(--font-weight-bold);
+  font-size: 1.2rem;
   color: var(--color-primary);
 }
+
 .primary {
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   background: var(--color-primary);
   color: white;
   border: none;
   cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.primary:hover {
+  background: var(--color-second-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .addCategoryBtn {
   align-self: flex-start;
   padding: 4px 8px;
   font-size: 0.9rem;
-  width: auto;
+  height: 2.5rem;
+  width: 7rem;
 }
 .danger {
-  color: var(--color-danger);
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.danger:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .muted {
   color: var(--color-gray-400);

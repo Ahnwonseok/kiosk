@@ -126,14 +126,51 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                   console.warn('📋 STATUS_CHANGE 이벤트에 orderId 또는 status가 없음:', data);
                 }
                 break;
-              case 'ORDER_DELETED':
-                console.log('📋 주문 삭제 이벤트:', data.orderId);
-                if (data.orderId) {
-                  setManagedOrders(prev => 
-                    prev.filter(order => order.orderId !== data.orderId)
-                  );
-                }
-                break;
+                case 'ORDER_DELETED':
+                  console.log('📋 주문 삭제 이벤트:', data.orderId, '상태:', data.status);
+                  console.log('📋 전체 삭제 데이터:', data);
+                  console.log('📋 data.order:', data.order);
+                  
+                  // SSE 이벤트에서 주문 ID 추출 (data.order.id 또는 data.orderId 사용)
+                  const orderIdToDelete = (data.order as any)?.id?.toString() || data.orderId?.toString();
+                  
+                  if (orderIdToDelete) {
+                    // 백엔드 주문 목록에서 제거하기 전에 주문 정보 저장
+                    const deletedOrder = managedOrders.find(order => order.orderId === orderIdToDelete);
+                    
+                    // 백엔드 주문 목록에서 제거
+                    setManagedOrders(prev => {
+                      const filtered = prev.filter(order => order.orderId !== orderIdToDelete);
+                      console.log('📋 주문 삭제 후 업데이트된 목록:', filtered);
+                      return filtered;
+                    });
+                    
+                    // 장바구니에서도 동일한 주문이 있다면 제거
+                    if (deletedOrder && deletedOrder.orderItems) {
+                      console.log('📋 장바구니 동기화 시작 - 삭제된 주문 아이템:', deletedOrder.orderItems);
+                      setOrderList(prev => {
+                        const updated = prev.filter(cartItem => {
+                          // 삭제된 주문 아이템과 장바구니 아이템을 비교하여 제거
+                          const shouldRemove = deletedOrder.orderItems.some(orderItem => 
+                            orderItem.productId === cartItem.productId &&
+                            orderItem.temperature === cartItem.temperature &&
+                            orderItem.size === cartItem.size
+                          );
+                          if (shouldRemove) {
+                            console.log('📋 장바구니에서 제거할 아이템:', cartItem);
+                          }
+                          return !shouldRemove;
+                        });
+                        console.log('📋 장바구니에서 주문 삭제 후 업데이트:', updated);
+                        return updated;
+                      });
+                    } else {
+                      console.log('📋 삭제된 주문 정보가 없어서 장바구니 동기화 스킵');
+                    }
+                  } else {
+                    console.warn('📋 ORDER_DELETED 이벤트에 orderId가 없음:', data);
+                  }
+                  break;
             }
           } catch (err) {
             console.error('SSE 데이터 파싱 오류:', err);
@@ -410,6 +447,13 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                       <div className={styles.menuInfo}>
                         <span className={styles.menuName}>{product.name}</span>
                         <span className={styles.menuPrice}>{product.price.toLocaleString()}원</span>
+                      </div>
+                      <div className={styles.temperatureBadges}>
+                        {product.hasIce && <span className={`${styles.badge} ${styles.ice}`}>Ice</span>}
+                        {product.hasHot && <span className={`${styles.badge} ${styles.hot}`}>Hot</span>}
+                        {!product.hasIce && !product.hasHot && (
+                          <span className={`${styles.badge} ${styles.hot}`}>Hot</span>
+                        )}
                       </div>
                     </div>
                   ))}

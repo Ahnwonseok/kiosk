@@ -87,7 +87,7 @@ export default function MenuAdmin() {
             <div key={c.categoryId} className={`${styles.cat} ${selectedCategoryId === c.categoryId ? styles.active : ''}`}>
               <button onClick={() => setSelectedCategoryId(c.categoryId)} className={styles.catName}>{c.categoryName}</button>
               <div className={styles.catActions}>
-                <button onClick={() => onRenameCategory(c.categoryId, c.categoryName)}>수정</button>
+                <button className={styles.primary} onClick={() => onRenameCategory(c.categoryId, c.categoryName)}>수정</button>
                 <button className={styles.danger} onClick={() => onDeleteCategory(c.categoryId)}>삭제</button>
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function MenuAdmin() {
           {selectedCategory && (
             <div>
               <div className={styles.catHeader}>
-                <h3>{selectedCategory.categoryName}</h3>
+                {/* <h3>{selectedCategory.categoryName}</h3> */}
                 <button className={styles.primary} onClick={onCreateProduct}>메뉴 추가</button>
               </div>
               <div className={styles.grid}>
@@ -114,7 +114,7 @@ export default function MenuAdmin() {
                       <span>온도: {p.hasHot ? 'Hot ' : ''}{p.hasIce ? 'Ice' : ''}</span>
                     </div>
                     <div className={styles.row}>
-                      <button onClick={() => onEditProduct(p)}>수정</button>
+                      <button className={styles.primary} onClick={() => onEditProduct(p)}>수정</button>
                        <button
                          className={styles.danger}
                          onClick={async () => {

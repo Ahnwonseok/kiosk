@@ -193,7 +193,6 @@
 }
 
 .menuSelection {
-  flex: 2;
   min-height: 0;
   overflow: hidden;
   display: flex;
@@ -243,10 +242,29 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 30px;
-  max-height: 400px;
+  margin-bottom: 0px;
+  max-height: 300px;
   overflow-y: auto;
   flex: 1;
+  padding-right: 5px;
+}
+
+.menuList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.menuList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.menuList::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.menuList::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .menuItem {
@@ -286,6 +304,33 @@
   font-size: 0.9rem;
 }
 
+.temperatureBadges {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.ice {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.badge.hot {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
 .orderDetails {
   background: #f8f9fa;
   border-radius: 10px;
@@ -309,7 +354,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 5px 0;
   border-bottom: 1px solid #e9ecef;
 }
 
