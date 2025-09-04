@@ -33,7 +33,7 @@ Content-Type: application/json
 
 {
     "username": "testuser",
-    "password": "1234"
+    "password": "12345"
 }
 ```
 
