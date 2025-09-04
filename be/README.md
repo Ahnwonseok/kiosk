@@ -9,7 +9,7 @@
 - Spring Security를 통한 보안 설정
 - BCrypt를 통한 비밀번호 암호화
 
-## API 엔드포인트 
+## API 엔드포인트
 
 ### 인증 관련 API
 
