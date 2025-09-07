@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  db:
+    image: mariadb:11
+    ports:
+      - "3307:3306"
+    container_name: kiosk-db
+    environment:
+      MARIADB_DATABASE: kiosk
+      MARIADB_ROOT_PASSWORD: 1234
+      TZ: Asia/Seoul
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p$$MARIADB_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+
+  kiosk:
+    build: .
+    container_name: kiosk
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/kiosk
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+
+volumes:
+  dbdata: {}

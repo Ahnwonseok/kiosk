@@ -2,7 +2,7 @@ import { CategoryInfo, OrderResult, OrderSuccessInfo, ProductOrder } from 'pages
 import { formatMenuOptionOrderList } from 'utils';
 
 //export const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
-export const BASE_API_DOMAIN = new URL(`http://1.235.32.57:8081`);
+export const BASE_API_DOMAIN = new URL(`http://1.235.32.57:9090`);
 //export const BASE_API_DOMAIN = new URL(`http://192.168.123.101:8081`);
 //const BASE_API_DOMAIN = new URL(`http://182.229.16.44:8081`);
 //const BASE_API_DOMAIN = new URL(`http://192.168.0.42:8081`);
