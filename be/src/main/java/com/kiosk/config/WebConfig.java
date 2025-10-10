@@ -14,15 +14,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins(
-                    "http://localhost:3000",
-                    "http://182.229.16.44:3000",
-                    "http://192.168.123.101:3000",
-                    "http://127.0.0.1:3030",
-                    "http://1.235.32.57:3030",
-                    "http://1.235.32.57:3039",
-                    "http://1.235.32.57:3000"
+            // allowedOrigins 대신 allowedOriginPatterns 사용
+            // 포트 3030에서 오는 모든 요청 허용 (어떤 IP/도메인이든)
+            .allowedOriginPatterns(
+                    "http://*:3030",      // HTTP 프로토콜, 포트 3030 (개발 환경)
+                    "https://*:3030"      // HTTPS 프로토콜, 포트 3030 (프로덕션 환경)
             )
+            // 또는 모든 Origin 허용 (보안 주의):
+            // .allowedOriginPatterns("*")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")  // 모든 헤더 허용 (Authorization 포함)
             .allowCredentials(true);

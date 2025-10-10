@@ -1,6 +1,8 @@
 version: "3.9"
+name: kiosk-fe-3030
 services:
   web:
+    container_name: kiosk-fe-3030
     image: node:20-alpine
     working_dir: /app
     volumes:

@@ -1,44 +1,22 @@
-import { BASE_API_DOMAIN } from './index';
+import axiosInstance from './axiosInstance';
 import { CategoryInfo, ProductInfo } from 'pages/types';
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('jwt');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
-};
-
-const fetchJSON = async (url: URL, option?: RequestInit) => {
-  const response = await fetch(url, {
-    ...option,
-    headers: { ...getAuthHeaders(), ...(option?.headers || {}) },
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
-  }
-  return response.json();
-};
-
 export async function fetchCategoriesWithProducts(): Promise<CategoryInfo[]> {
-  const url = new URL('api/products', BASE_API_DOMAIN);
-  return await fetchJSON(url);
+  const response = await axiosInstance.get<CategoryInfo[]>('api/products');
+  return response.data;
 }
 
 export async function createCategory(categoryName: string): Promise<CategoryInfo> {
-  const url = new URL('api/categories', BASE_API_DOMAIN);
-  return await fetchJSON(url, { method: 'POST', body: JSON.stringify({ categoryName }) });
+  const response = await axiosInstance.post<CategoryInfo>('api/categories', { categoryName });
+  return response.data;
 }
 
 export async function updateCategory(categoryId: number, categoryName: string): Promise<void> {
-  const url = new URL(`api/categories/${categoryId}`, BASE_API_DOMAIN);
-  await fetchJSON(url, { method: 'PUT', body: JSON.stringify({ categoryName }) });
+  await axiosInstance.put(`api/categories/${categoryId}`, { categoryName });
 }
 
 export async function deleteCategory(categoryId: number): Promise<void> {
-  const url = new URL(`api/categories/${categoryId}`, BASE_API_DOMAIN);
-  await fetchJSON(url, { method: 'DELETE' });
+  await axiosInstance.delete(`api/categories/${categoryId}`);
 }
 
 export type CreateProductPayload = {
@@ -51,8 +29,8 @@ export type CreateProductPayload = {
 };
 
 export async function createProduct(payload: CreateProductPayload): Promise<ProductInfo> {
-  const url = new URL('api/products', BASE_API_DOMAIN);
-  return await fetchJSON(url, { method: 'POST', body: JSON.stringify(payload) });
+  const response = await axiosInstance.post<ProductInfo>('api/products', payload);
+  return response.data;
 }
 
 export type UpdateProductPayload = {
@@ -64,32 +42,24 @@ export type UpdateProductPayload = {
 };
 
 export async function updateProduct(productId: number, payload: UpdateProductPayload): Promise<void> {
-  const url = new URL(`api/products/${productId}`, BASE_API_DOMAIN);
-  await fetchJSON(url, { method: 'PUT', body: JSON.stringify(payload) });
+  await axiosInstance.put(`api/products/${productId}`, payload);
 }
 
 export async function deleteProduct(productId: number): Promise<void> {
-  const url = new URL(`api/products/${productId}`, BASE_API_DOMAIN);
-  await fetchJSON(url, { method: 'DELETE' });
+  await axiosInstance.delete(`api/products/${productId}`);
 }
 
 // Upload an image file and return web path from backend
 export async function uploadProductImage(file: File): Promise<{ path: string }> {
-  const url = new URL('api/uploads', BASE_API_DOMAIN);
-  const token = localStorage.getItem('jwt');
   const formData = new FormData();
   formData.append('file', file, file.name);
-  const res = await fetch(url, {
-    method: 'POST',
+  
+  const response = await axiosInstance.post<{ path: string }>('api/uploads', formData, {
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      'Content-Type': 'multipart/form-data',
     },
-    body: formData,
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || '이미지 업로드 실패');
-  }
-  return res.json();
+  
+  return response.data;
 }
 

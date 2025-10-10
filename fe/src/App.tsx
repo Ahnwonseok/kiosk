@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Home from 'pages/Home';
 import ReceiptPage from 'pages/ReceiptPage';
 import LoginPage from 'pages/LoginPage';
@@ -28,6 +29,24 @@ function LoginRoute() {
 
 function BaristaRoute() {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // JWT 토큰 확인
+    const token = localStorage.getItem('jwt');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  // 로딩 중
+  if (isAuthenticated === null) {
+    return null;
+  }
+
+  // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
   return <BaristaPage navigate={navigate} />;
 }
 

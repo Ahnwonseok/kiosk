@@ -1,36 +1,9 @@
+import axiosInstance from './axiosInstance';
 import { CategoryInfo, OrderResult, OrderSuccessInfo, ProductOrder } from 'pages/types';
 import { formatMenuOptionOrderList } from 'utils';
 
-//export const BASE_API_DOMAIN = new URL(`http://localhost:8081`);
-export const BASE_API_DOMAIN = new URL(`http://1.235.32.57:9090`);
-//export const BASE_API_DOMAIN = new URL(`http://192.168.123.101:8081`);
-//const BASE_API_DOMAIN = new URL(`http://182.229.16.44:8081`);
-//const BASE_API_DOMAIN = new URL(`http://192.168.0.42:8081`);
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('jwt');
-  console.log('🔍 JWT Token Check:', token ? `Token exists (${token.substring(0, 20)}...)` : 'No token found');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
-  };
-};
-
-const fetchJSON = async (url: URL, option?: RequestInit) => {
-  const response = await fetch(url, {
-    ...option,
-    headers: {
-      ...getAuthHeaders(),
-      ...(option?.headers || {})
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-
-  return response.json();
-};
+// BASE_API_DOMAIN은 config.ts로 이동
+export { BASE_API_DOMAIN } from './config';
 
 let menusFetchPromise: Promise<CategoryInfo[] | undefined> | null = null;
 
@@ -41,10 +14,9 @@ export const fetchMenus = async (): Promise<CategoryInfo[] | undefined> => {
 
   menusFetchPromise = (async () => {
     try {
-      const url = new URL('api/products', BASE_API_DOMAIN);
-      const result = await fetchJSON(url);
+      const response = await axiosInstance.get<CategoryInfo[]>('api/products');
       menusFetchPromise = null; // 성공적인 응답 후 초기화
-      return result;
+      return response.data;
     } catch (error) {
       console.error(error);
       menusFetchPromise = null; // 에러 발생 시 초기화
@@ -60,18 +32,14 @@ export const requestCardOrder = async (
   totalPrice: number
 ): Promise<OrderResult | undefined> => {
   const formattedOrderList = formatMenuOptionOrderList(orderList);
-  const json = JSON.stringify({
+  const payload = {
     orderProducts: formattedOrderList,
     totalPrice: totalPrice,
-  });
-  const option = {
-    method: 'POST',
-    body: json,
   };
 
   try {
-    const url = new URL('api/payment/card', BASE_API_DOMAIN);
-    return await fetchJSON(url, option);
+    const response = await axiosInstance.post<OrderResult>('api/payment/card', payload);
+    return response.data;
   } catch (error) {
     console.error(error);
   }
@@ -86,8 +54,10 @@ export const fetchReceipt = async (orderId: number): Promise<OrderSuccessInfo | 
 
   receiptFetchPromise[orderId] = (async () => {
     try {
-      const url = new URL(`api/receipt?orderId=${orderId}`, BASE_API_DOMAIN);
-      return await fetchJSON(url);
+      const response = await axiosInstance.get<OrderSuccessInfo>('api/receipt', {
+        params: { orderId }
+      });
+      return response.data;
     } catch (error) {
       console.error(error);
       return undefined;
@@ -103,19 +73,15 @@ export const requestCashOrder = async (
   receivedPrice: number
 ): Promise<OrderResult | undefined> => {
   const formattedOrderList = formatMenuOptionOrderList(orderList);
-  const json = JSON.stringify({
+  const payload = {
     orderProducts: formattedOrderList,
     totalPrice: totalPrice,
     receivedPrice: receivedPrice,
-  });
-  const option = {
-    method: 'POST',
-    body: json,
   };
 
   try {
-    const url = new URL('api/payment/cash', BASE_API_DOMAIN);
-    return await fetchJSON(url, option);
+    const response = await axiosInstance.post<OrderResult>('api/payment/cash', payload);
+    return response.data;
   } catch (error) {
     console.error(error);
   }
@@ -126,31 +92,28 @@ export const failCardOrder = async (
   totalPrice: number
 ): Promise<OrderResult | undefined> => {
   const formattedOrderList = formatMenuOptionOrderList(orderList);
-  const json = JSON.stringify({
+  const payload = {
     orderItems: formattedOrderList,
     totalPrice: totalPrice,
-  });
-  const option = {
-    method: 'POST',
-    body: json,
   };
 
   try {
-    const url = new URL('api/payment/card?fail=500', BASE_API_DOMAIN);
-    return await fetchJSON(url, option);
+    const response = await axiosInstance.post<OrderResult>('api/payment/card', payload, {
+      params: { fail: 500 }
+    });
+    return response.data;
   } catch (error) {
     console.error(error);
   }
 };
 
 export async function login(username: string, password: string) {
-  const response = await fetch(BASE_API_DOMAIN+'api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
-  });
-  if (!response.ok) throw new Error('로그인 실패');
-  return response.json();
+  try {
+    const response = await axiosInstance.post('api/auth/login', { username, password });
+    return response.data;
+  } catch (error) {
+    throw new Error('로그인 실패');
+  }
 }
 
 // 새로운 API 모듈들 export
