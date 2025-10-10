@@ -49,7 +49,15 @@ services:
       HOST: "0.0.0.0"
       WDS_SOCKET_PORT: "3030"
       PORT: "3030"
-    command: sh -c "npm ci && npm start"
+    # ⬇︎ package-lock이면 npm ci, yarn.lock이면 Yarn으로 설치
+    command: >
+      sh -c "
+      if [ -f package-lock.json ] && [ ! -f yarn.lock ]; then
+        npm ci;
+      else
+        corepack enable && yarn install --immutable;
+      fi
+      && npm start"
     depends_on:
       - kiosk
 
