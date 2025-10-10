@@ -47,11 +47,11 @@ public class CategoryService {
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
 
         // 1) 이 카테고리에 속한 모든 상품 조회
-        List<Product> products = productRepository.findByCategory_Id(id);
+        List<Product> products = productRepository.findByCategoryId(id);
 
         // 2) 각 상품을 참조하는 주문항목 제거 후 상품 삭제
         for (Product p : products) {
-            orderProductRepository.deleteByProduct_Id(p.getId());
+            orderProductRepository.deleteByProductId(p.getId());
         }
         productRepository.deleteAll(products);
 

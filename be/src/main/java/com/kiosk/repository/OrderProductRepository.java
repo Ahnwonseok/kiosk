@@ -14,7 +14,7 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
 
     void deleteByOrder(Orders order);
 
-    boolean existsByProduct_Id(Long productId);
+    boolean existsByProductId(Long productId);
 
-    void deleteByProduct_Id(Long productId);
+    void deleteByProductId(Long productId);
 }

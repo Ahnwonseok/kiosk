@@ -72,7 +72,7 @@ public class ProductService {
     @Transactional
     public void delete(Long productId) {
         // 먼저 이 상품을 참조하는 주문 항목 삭제
-        orderProductRepository.deleteByProduct_Id(productId);
+        orderProductRepository.deleteByProductId(productId);
         // 이후 상품 삭제
         productRepository.deleteById(productId);
     }

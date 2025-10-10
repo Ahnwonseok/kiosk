@@ -11,7 +11,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p JOIN FETCH p.category")
     List<Product> findAllWithCategory();
 
-    boolean existsByCategory_Id(Long categoryId);
+    boolean existsByCategoryId(Long categoryId);
 
-    List<Product> findByCategory_Id(Long categoryId);
+    List<Product> findByCategoryId(Long categoryId);
 }
