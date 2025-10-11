@@ -2,24 +2,29 @@ pipeline {
     agent any
 
     environment {
-        EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'             // 배포할 EC2 퍼블릭 IP
-        PEM_PATH = 'C:\\Users\\lenovo\\Downloads\\kiosk_key.pem'  // PEM 키 경로
+        // EC2 정보
+        EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'  // EC2 퍼블릭 IP
+        PEM_PATH = 'C:/Users/lenovo/Downloads/kiosk_key.pem'     // PEM 키 경로 (Windows)
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
-        REPO_CRED = 'kiosk'                     // Jenkins Credentials ID
-        DEPLOY_DIR = '~/kiosk'                  // EC2 배포 디렉토리
+        REPO_CRED = 'kiosk'                                     // Jenkins Credential ID
+        DEPLOY_DIR = '/home/ec2-user/kiosk'                     // EC2 절대 경로
+        BACKEND_NAME = 'kiosk-backend.jar'
+        BACKEND_DIR = "${DEPLOY_DIR}/backend"
+        FRONTEND_DIR = "${DEPLOY_DIR}/frontend"
     }
 
     stages {
+
         stage('Checkout SCM') {
             steps {
                 echo '=== GitHub에서 코드 체크아웃 ==='
-                git url: "${REPO_URL}", credentialsId: "${REPO_CRED}"
+                git url: "${REPO_URL}", credentialsId: "${REPO_CRED}", branch: 'main'
             }
         }
 
         stage('Build Backend') {
             steps {
-                echo '=== Backend 빌드 ==='
+                echo '=== 백엔드 빌드 ==='
                 dir('be') {
                     bat 'gradlew clean build -x test'
                 }
@@ -28,7 +33,7 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                echo '=== Frontend 빌드 ==='
+                echo '=== 프론트엔드 빌드 ==='
                 dir('fe') {
                     bat 'npm install'
                     bat 'npm run build'
@@ -36,25 +41,41 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2') {
+        stage('EC2 Init Setup') {
             steps {
-                echo '=== EC2로 배포 (Windows Jenkins 기준) ==='
-                // 배포 디렉토리 생성
+                echo '=== EC2 초기 설정 실행 (Nginx 설치 등) ==='
                 bat """
-                ssh -i ${PEM_PATH} -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "mkdir -p ${DEPLOY_DIR}/backend"
-                ssh -i ${PEM_PATH} -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "mkdir -p ${DEPLOY_DIR}/frontend"
+                ssh -i ${PEM_PATH} -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "bash -s" < deploy/init-deploy.sh
+                """
+            }
+        }
+
+        stage('Deploy Backend & Frontend') {
+            steps {
+                echo '=== EC2로 배포 시작 ==='
+
+                // 1️⃣ EC2 디렉토리 생성
+                bat """
+                ssh -i ${PEM_PATH} -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "mkdir -p ${BACKEND_DIR} ${FRONTEND_DIR}"
                 """
 
-                // Backend 업로드 및 실행
+                // 2️⃣ 백엔드 업로드 + 실행
                 bat """
-                scp -i ${PEM_PATH} backend\\build\\libs\\*.jar ec2-user@${EC2_HOST}:${DEPLOY_DIR}/backend/
-                ssh -i ${PEM_PATH} ec2-user@${EC2_HOST} "pkill -f kiosk-backend.jar || true"
-                ssh -i ${PEM_PATH} ec2-user@${EC2_HOST} "nohup java -jar ${DEPLOY_DIR}/backend/kiosk-backend.jar > ${DEPLOY_DIR}/backend/nohup.out 2>&1 &"
+                scp -i ${PEM_PATH} be\\build\\libs\\*.jar ec2-user@${EC2_HOST}:${BACKEND_DIR}/
+                ssh -i ${PEM_PATH} ec2-user@${EC2_HOST} "pkill -f ${BACKEND_NAME} || true"
+                ssh -i ${PEM_PATH} ec2-user@${EC2_HOST} "nohup java -jar ${BACKEND_DIR}/${BACKEND_NAME} > ${BACKEND_DIR}/nohup.out 2>&1 &"
                 """
 
-                // Frontend 업로드
+                // 3️⃣ 프론트엔드 업로드
                 bat """
-                scp -i ${PEM_PATH} -r frontend\\dist\\* ec2-user@${EC2_HOST}:${DEPLOY_DIR}/frontend/
+                scp -i ${PEM_PATH} -r fe\\build\\* ec2-user@${EC2_HOST}:${FRONTEND_DIR}/
+                """
+
+                // 4️⃣ Nginx root 덮어쓰기 + 재시작
+                bat """
+                ssh -i ${PEM_PATH} ec2-user@${EC2_HOST} "sudo rm -rf /usr/share/nginx/html/*"
+                ssh -i ${PEM_PATH} ec2-user@${EC2_HOST} "sudo cp -r ${FRONTEND_DIR}/* /usr/share/nginx/html/"
+                ssh -i ${PEM_PATH} ec2-user@${EC2_HOST} "sudo systemctl restart nginx"
                 """
             }
         }
@@ -62,10 +83,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ 배포 완료!'
+            echo '✅ 백엔드 + 프론트엔드 EC2 배포 완료!'
         }
         failure {
-            echo '❌ 배포 실패!'
+            echo '❌ 배포 실패! Jenkins 로그 확인 필요.'
         }
     }
 }
