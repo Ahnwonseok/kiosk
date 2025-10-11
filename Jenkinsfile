@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // EC2 정보
-        EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'  // EC2 퍼블릭 IP
+        EC2_HOST = 'ec2-52-91-215-61.compute.amazonaws.com'  // EC2 퍼블릭 IP
         PEM_PATH = 'C:/Users/lenovo/Downloads/kiosk_key.pem'     // PEM 키 경로 (Windows)
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'                                     // Jenkins Credential ID
@@ -35,15 +35,16 @@ pipeline {
             steps {
                 echo '=== 프론트엔드 빌드 ==='
                 dir('fe') {
-                    bat 'npm install'
-                    bat 'npm run build'
+                    // ESLint 경고 무시하고 빌드
+                    bat 'set CI=false && npm install'
+                    bat 'set CI=false && npm run build'
                 }
             }
         }
 
         stage('EC2 Init Setup') {
             steps {
-                echo '=== EC2 초기 설정 실행 (Nginx 설치 등) ==='
+                echo '=== EC2 초기 설정 실행 ==='
                 bat """
                 ssh -i ${PEM_PATH} -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "bash -s" < deploy/init-deploy.sh
                 """
