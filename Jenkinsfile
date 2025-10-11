@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'
-        PEM_PATH = "C:\\Jenkins\\keys\\kiosk_key.pem"   // Jenkins 계정 전용 폴더
+        PEM_PATH = "C:\\Users\\Administrator\\.ssh\\kiosk_key.pem"
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'
         BASH = "C:\\Program Files\\Git\\bin\\bash.exe" // Git Bash 경로
