@@ -3,8 +3,10 @@ pipeline {
 
     environment {
         EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'
+        PEM_PATH = "C:\\Users\\lenovo\\.ssh\\kiosk_key.pem"
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'
+        BASH = "C:\\Program Files\\Git\\bin\\bash.exe" // Git Bash 경로
     }
 
     stages {
@@ -33,24 +35,12 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                echo 'Deploying to EC2 using Jenkins SSH Credentials...'
-                
-                sshagent(['ec2-deploy-key']) {  // Jenkins Credentials ID
-                    // 배포: Backend JAR
-                    bat """
-                    scp be\\build\\libs\\*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/
-                    """
-
-                    // 배포: Frontend build
-                    bat """
-                    scp -r fe\\build\\* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/
-                    """
-
-                    // 필요시 EC2에서 서비스 재시작
-                    bat """
-                    ssh ec2-user@${EC2_HOST} "sudo systemctl restart kiosk-app.service"
-                    """
-                }
+                echo 'Deploying to EC2...'
+                // Git Bash를 이용해 scp 실행
+                bat """
+                "${BASH}" -c "scp -i '${PEM_PATH}' be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
+                "${BASH}" -c "scp -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
+                """
             }
         }
     }
