@@ -36,13 +36,13 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying to EC2...'
-                bat """
-                ssh -i "${PEM_PATH}" -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "mkdir -p /home/ec2-user/app"
-                ssh -i "${PEM_PATH}" -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "mkdir -p /home/ec2-user/app/frontend"
-
-                scp -i "${PEM_PATH}" be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/
-                scp -i "${PEM_PATH}" -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/
-                """
+        bat """
+        ssh -i "${PEM_PATH}" -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "mkdir -p /home/ec2-user/app/frontend"
+        ssh -i "${PEM_PATH}" -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} "sudo chown -R ec2-user:ec2-user /home/ec2-user/app"
+        
+        scp -i "${PEM_PATH}" -o StrictHostKeyChecking=no be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/
+        scp -i "${PEM_PATH}" -o StrictHostKeyChecking=no -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/
+        """
             }
         }
     }
