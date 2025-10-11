@@ -20,7 +20,7 @@ pipeline {
         stage('Build Backend') {
             steps {
                 echo '=== Backend 빌드 ==='
-                dir('backend') {
+                dir('be') {
                     bat 'gradlew clean build -x test'
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 echo '=== Frontend 빌드 ==='
-                dir('frontend') {
+                dir('fe') {
                     bat 'npm install'
                     bat 'npm run build'
                 }
