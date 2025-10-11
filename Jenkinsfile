@@ -36,10 +36,10 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying to EC2...'
-        bat """        
-        scp -i "C:\Users\lenovo\Downloads\kiosk_key.pem" be/build/libs/*.jar ec2-user@ec2-52-91-215-61.compute-1.amazonaws.com:/home/ec2-user/app/
-        scp -i "C:\Users\lenovo\Downloads\kiosk_key.pem" fe/build/* ec2-user@ec2-52-91-215-61.compute-1.amazonaws.com:/home/ec2-user/app/frontend/
-        """
+bat """
+scp -i "C:/Users/lenovo/Downloads/kiosk_key.pem" be/build/libs/*.jar ec2-user@ec2-52-91-215-61.compute-1.amazonaws.com:/home/ec2-user/app/
+scp -i "C:/Users/lenovo/Downloads/kiosk_key.pem" -r fe/build/* ec2-user@ec2-52-91-215-61.compute-1.amazonaws.com:/home/ec2-user/app/frontend/
+"""
             }
         }
     }
