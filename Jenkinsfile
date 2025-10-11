@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'             // 배포할 EC2 퍼블릭 IP
-        PEM_PATH = 'C:\\Users\\wonseok\\.ssh\\ec2-key.pem'  // PEM 키 경로
+        PEM_PATH = 'C:\\Users\\lenovo\\Downloads\\kiosk_key.pem'  // PEM 키 경로
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'                     // Jenkins Credentials ID
         DEPLOY_DIR = '~/kiosk'                  // EC2 배포 디렉토리
