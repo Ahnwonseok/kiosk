@@ -6,7 +6,7 @@ pipeline {
         PEM_PATH = "C:\\Users\\lenovo\\.ssh\\kiosk_key.pem"
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'
-        BASH = "C:\\Program Files\\Git\\bin\\bash.exe" // Git Bash 경로
+        BASH = "C:\\Program Files\\Git\\bin\\bash.exe"
     }
 
     stages {
@@ -36,10 +36,18 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying to EC2...'
-                // Git Bash를 이용해 scp 실행
                 bat """
                 "${BASH}" -c "scp -i '${PEM_PATH}' be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
                 "${BASH}" -c "scp -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
+
+                // ✅ 백엔드 실행
+                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f kiosk || true'"
+                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/kiosk-0.0.1.jar > /home/ec2-user/app/app.log 2>&1 &'"
+
+                // ✅ 프론트엔드 실행 (serve 사용)
+                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"
+                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f serve || true'"
+                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup serve -s /home/ec2-user/app/frontend -l 3000 > /home/ec2-user/app/frontend.log 2>&1 &'"
                 """
             }
         }
@@ -47,10 +55,10 @@ pipeline {
 
     post {
         success {
-            echo '빌드 & 배포 완료!'
+            echo '✅ 백엔드 & 프론트엔드 빌드 및 배포 완료!'
         }
         failure {
-            echo '빌드 실패! 로그를 확인하세요.'
+            echo '❌ 빌드 실패! 로그를 확인하세요.'
         }
     }
 }
