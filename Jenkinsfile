@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        EC2_HOST = "ec2-xx-xxx-xxx-xx.ap-northeast-2.compute.amazonaws.com"
+        EC2_HOST = "ec2-52-91-215-61.compute-1.amazonaws.com"
 
         BACKEND_DIR = "/home/ec2-user/backend"
         BACKEND_APP_NAME = "kiosk-backend"
