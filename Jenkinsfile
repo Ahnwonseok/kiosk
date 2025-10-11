@@ -33,22 +33,23 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                echo 'Deploying to EC2 using Jenkins Credentials...'
+                echo 'Deploying to EC2 using Jenkins SSH Credentials...'
 
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-deploy-key', keyFileVariable: 'EC2_KEY')]) {
+
                     // Backend JAR 배포
                     bat """
-                    scp -i "%EC2_KEY%" be\\build\\libs\\*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/
+                    scp -i "%EC2_KEY%" -o StrictModes=no be\\build\\libs\\*.jar ec2-user@%EC2_HOST%:/home/ec2-user/app/
                     """
 
                     // Frontend build 배포
                     bat """
-                    scp -i "%EC2_KEY%" -r fe\\build\\* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/
+                    scp -i "%EC2_KEY%" -o StrictModes=no -r fe\\build\\* ec2-user@%EC2_HOST%:/home/ec2-user/app/frontend/
                     """
 
-                    // 필요 시 EC2 서비스 재시작
+                    // EC2 서비스 재시작
                     bat """
-                    ssh -i "%EC2_KEY%" ec2-user@${EC2_HOST} "sudo systemctl restart kiosk-app.service"
+                    ssh -i "%EC2_KEY%" -o StrictModes=no ec2-user@%EC2_HOST% "sudo systemctl restart kiosk-app.service"
                     """
                 }
             }
