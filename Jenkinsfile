@@ -2,10 +2,11 @@ pipeline {
     agent any
 
     environment {
-        EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'  // 배포할 EC2 퍼블릭 IP
-        PEM_PATH = "C:\\ProgramData\\Jenkins\\kiosk_key.pem"
+        EC2_HOST = 'ec2-52-91-215-61.compute-1.amazonaws.com'
+        PEM_PATH = "C:\\Jenkins\\keys\\kiosk_key.pem"   // Jenkins 계정 전용 폴더
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'
+        BASH = "C:\\Program Files\\Git\\bin\\bash.exe" // Git Bash 경로
     }
 
     stages {
@@ -26,7 +27,6 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('fe') {
-                    // cross-env CI=false를 package.json에서 이미 설정했으므로 그대로 빌드
                     bat 'npm install'
                     bat 'npm run build'
                 }
@@ -36,10 +36,11 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying to EC2...'
-bat """
-scp -i "C:/Users/lenovo/Downloads/kiosk_key.pem" be/build/libs/*.jar ec2-user@ec2-52-91-215-61.compute-1.amazonaws.com:/home/ec2-user/app/
-scp -i "C:/Users/lenovo/Downloads/kiosk_key.pem" -r fe/build/* ec2-user@ec2-52-91-215-61.compute-1.amazonaws.com:/home/ec2-user/app/frontend/
-"""
+                // Git Bash를 이용해 scp 실행
+                bat """
+                "${BASH}" -c "scp -i '${PEM_PATH}' be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
+                "${BASH}" -c "scp -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
+                """
             }
         }
     }
