@@ -42,7 +42,7 @@ pipeline {
 
                 // ✅ 백엔드 실행
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f kiosk || true'"
-                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/kiosk-0.0.1.jar > /home/ec2-user/app/app.log 2>&1 &'"
+                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/be-0.0.1-SNAPSHOT.jar > /home/ec2-user/app/app.log 2>&1 &'"
 
                 // ✅ 프론트엔드 실행 (serve 사용)
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"
