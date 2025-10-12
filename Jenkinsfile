@@ -19,6 +19,11 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('be') {
+
+                    // Jenkins Credentials에서 application-secret.yml 가져오기
+                    withCredentials([file(credentialsId: 'application-secret-yml', variable: 'SECRET_FILE')]) {
+                        bat 'copy "%SECRET_FILE%" src\\main\\resources\\application-secret.yml'
+                    }
                     bat 'gradlew clean build -x test'
                 }
             }
@@ -40,11 +45,11 @@ pipeline {
                 "${BASH}" -c "scp -i '${PEM_PATH}' be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
                 "${BASH}" -c "scp -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
 
-                // ✅ 백엔드 실행
+                //백엔드 실행
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f kiosk || true'"
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/be-0.0.1-SNAPSHOT.jar > /home/ec2-user/app/app.log 2>&1 &'"
 
-                // ✅ 프론트엔드 실행 (serve 사용)
+                // 프론트엔드 실행 (serve 사용)
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f serve || true'"
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup serve -s /home/ec2-user/app/frontend -l 3000 > /home/ec2-user/app/frontend.log 2>&1 &'"

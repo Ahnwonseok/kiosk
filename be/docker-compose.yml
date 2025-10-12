@@ -39,7 +39,7 @@ services:
     image: node:20-alpine
     working_dir: /app
     volumes:
-      - ../fe:/app            # ← Jenkins에서 be\..\fe 가 실제로 존재해야 함
+      - ../fe:/app
       - /app/node_modules
     ports:
       - "3030:3030"
@@ -49,22 +49,9 @@ services:
       HOST: "0.0.0.0"
       WDS_SOCKET_PORT: "3030"
       PORT: "3030"
-      CI: "true"
-      YARN_ENABLE_IMMUTABLE_INSTALLS: "true"   # ← Yarn이 lockfile 절대 수정 안 함
-    command: >
-      sh -c "
-      corepack enable &&
-      if [ -f yarn.lock ]; then
-        yarn install --immutable --immutable-cache --check-cache;
-      elif [ -f package-lock.json ]; then
-        npm ci;
-      else
-        npm install;
-      fi
-      && npm start"
+    command: sh -c "npm ci && npm start"
     depends_on:
       - kiosk
-
 
 volumes:
   dbdata: {}

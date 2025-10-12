@@ -1,15 +1,7 @@
 spring:
-  datasource:
-    url: jdbc:mariadb://localhost:3306/kiosk
-    username: root
-    password: 1234
-    driver-class-name: org.mariadb.jdbc.Driver
-    sql:
-      init:
-        mode: always
-        schema-locations: classpath:schema.sql
-        data-locations: classpath:data.sql
-
+  profiles:
+    include: secret
+  
   jpa:
     hibernate:
       ddl-auto: update
@@ -28,6 +20,3 @@ logging.level:
 server:
   port: 9090
 #  address: 0.0.0.0
-jwt:
-  secret: your-super-secret-jwt-key-that-is-long-enough-for-hs512-algorithm-and-must-be-at-least-512-bits-long-which-means-64-characters-minimum
-  expiration: 86400000 # 24시간 (밀리초)
