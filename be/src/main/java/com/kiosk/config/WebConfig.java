@@ -6,6 +6,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
@@ -30,7 +31,16 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // ../image 디렉토리를 /images/** 로 서빙
-        String imagePath = Paths.get("").toAbsolutePath().getParent().resolve("image").toUri().toString();
+        Path imageDir = Paths.get("").toAbsolutePath().getParent().resolve("image");
+        String imagePath = imageDir.toUri().toString();
+        
+        // 끝에 슬래시가 없으면 추가 (Spring Boot ResourceHandler 요구사항)
+        if (!imagePath.endsWith("/")) {
+            imagePath = imagePath + "/";
+        }
+        
+        System.out.println("Image resource path: " + imagePath);
+        
         registry.addResourceHandler("/images/**")
                 .addResourceLocations(imagePath);
     }
