@@ -3,10 +3,11 @@ pipeline {
 
     environment {
         EC2_HOST = '52.79.80.250'
-        PEM_PATH = "C:\\Users\\lenovo\\Downloads\\kiosk.pem"
+        PEM_PATH = "/c/Users/lenovo/Downloads/kiosk.pem"
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'
         BASH = "C:\\Program Files\\Git\\bin\\bash.exe"
+        SSH_OPTIONS = "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
     }
 
     stages {
@@ -42,17 +43,17 @@ pipeline {
             steps {
                 echo 'Deploying to EC2...'
                 bat """
-                "${BASH}" -c "scp -i '${PEM_PATH}' be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
-                "${BASH}" -c "scp -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
+                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
+                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
 
                 //백엔드 실행
-                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f be-0.0.1-SNAPSHOT.jar || true'"
-                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/be-0.0.1-SNAPSHOT.jar > /home/ec2-user/app/app.log 2>&1 &'"
+                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f be-0.0.1-SNAPSHOT.jar || true'"
+                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/be-0.0.1-SNAPSHOT.jar > /home/ec2-user/app/app.log 2>&1 &'"
 
                 // 프론트엔드 실행 (serve 사용)
-                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"
-                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f serve || true'"
-                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup serve -s /home/ec2-user/app/frontend -l 3000 > /home/ec2-user/app/frontend.log 2>&1 &'"
+                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"
+                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f serve || true'"
+                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup serve -s /home/ec2-user/app/frontend -l 3000 > /home/ec2-user/app/frontend.log 2>&1 &'"
                 """
             }
         }
