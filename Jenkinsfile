@@ -46,7 +46,7 @@ pipeline {
                 "${BASH}" -c "scp -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
 
                 //백엔드 실행
-                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f kiosk || true'"
+                "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f be-0.0.1-SNAPSHOT.jar || true'"
                 "${BASH}" -c "ssh -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/be-0.0.1-SNAPSHOT.jar > /home/ec2-user/app/app.log 2>&1 &'"
 
                 // 프론트엔드 실행 (serve 사용)
