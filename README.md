@@ -47,20 +47,22 @@
 <details>
 <summary> 1. 로그인 페이지</summary>
 <br>
-<img width="400" alt="localhost_3030_(iPad Air)" src="https://github.com/user-attachments/assets/ebd01591-6d6b-4b7a-a5a4-142bc3dd87f7" align="left" style="margin-right: 20px;"/>
-
- - 바리스타는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
+ 
+  - 바리스타는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
  - 계정이 없는 경우 키오스크 이용하기를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
-
+ 
+<img width="400" alt="localhost_3030_(iPad Air)" src="https://github.com/user-attachments/assets/ebd01591-6d6b-4b7a-a5a4-142bc3dd87f7"/>
 <br clear="left"><br>
 </details>
 
 <details>
 <summary> 2. 키오스크 화면</summary>
 <br>
-  <img width="500" alt="localhost_3030_kiosk(iPad Air) (1)" src="https://github.com/user-attachments/assets/dc7c4b6f-4035-4cc0-a7ef-90ea42161113" align="left" style="margin-right: 20px;"/>
+ 
+ - 손님이 원하는 메뉴, 개수, 온도를 선택하고 주문이 완료되면 실시간으로 바리스타에게 전송된다.
+ 
+  <img width="500" alt="localhost_3030_kiosk(iPad Air) (1)" src="https://github.com/user-attachments/assets/dc7c4b6f-4035-4cc0-a7ef-90ea42161113"/>
 
-- 손님이 원하는 메뉴, 개수, 온도를 선택하고 주문이 완료되면 실시간으로 바리스타에게 전송된다.
 <br clear="left"><br>
 </details>
 
@@ -69,20 +71,19 @@
 <br>
 
 **3.1 주문관리**
-  
-<img width="600" alt="localhost_3030_barista(Galaxy Tab S4) (2)" src="https://github.com/user-attachments/assets/cf30e545-7c59-4c4a-8763-1c482122570d" align="left" style="margin-right: 20px;"/>
-  
+
 - 좌측 화면에서는 키오스크와 마찬가지로 주문할 메뉴, 개수, 온도를 선택할 수 있다.
 - 우측 화면에서는 주문이 완료된 주문 내역을 확인하고 **진행단계**를 설정한다. (대기 - 진행 중 - 완료)
+  
+<img width="600" alt="localhost_3030_barista(Galaxy Tab S4) (2)" src="https://github.com/user-attachments/assets/cf30e545-7c59-4c4a-8763-1c482122570d"/>
     <br clear="left"><br><br>
     
 **3.2 메뉴 관리**
-  
-<img width="600" alt="localhost_3030_barista(Galaxy Tab S4) (4)" src="https://github.com/user-attachments/assets/4128929b-b47f-422b-901b-3f44c37f81e7" align="left" style="margin-right: 20px;" />
 
 - 카테고리를 추가, 수정, 삭제할수 있다.
 - 카테고리별 메뉴의 메뉴명, 이미지, 가격, 온도를 추가, 수정, 삭제할 수 있다.
   
+<img width="600" alt="localhost_3030_barista(Galaxy Tab S4) (4)" src="https://github.com/user-attachments/assets/4128929b-b47f-422b-901b-3f44c37f81e7" />
   <br clear="left"><br>
 </details>
 
