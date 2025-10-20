@@ -75,7 +75,7 @@
 - 좌측 화면에서는 키오스크와 마찬가지로 주문할 메뉴, 개수, 온도를 선택할 수 있다.
 - 우측 화면에서는 주문이 완료된 주문 내역을 확인하고 **진행단계**를 설정한다. (대기 - 진행 중 - 완료)
   
-<img width="600" alt="localhost_3030_barista(Galaxy Tab S4) (2)" src="https://github.com/user-attachments/assets/cf30e545-7c59-4c4a-8763-1c482122570d"/>
+<img width="800" alt="localhost_3030_barista(Galaxy Tab S4) (2)" src="https://github.com/user-attachments/assets/cf30e545-7c59-4c4a-8763-1c482122570d"/>
     <br clear="left"><br><br>
     
 **3.2 메뉴 관리**
@@ -83,7 +83,7 @@
 - 카테고리를 추가, 수정, 삭제할수 있다.
 - 카테고리별 메뉴의 메뉴명, 이미지, 가격, 온도를 추가, 수정, 삭제할 수 있다.
   
-<img width="600" alt="localhost_3030_barista(Galaxy Tab S4) (4)" src="https://github.com/user-attachments/assets/4128929b-b47f-422b-901b-3f44c37f81e7" />
+<img width="700" alt="localhost_3030_barista(Galaxy Tab S4) (4)" src="https://github.com/user-attachments/assets/4128929b-b47f-422b-901b-3f44c37f81e7" />
   <br clear="left"><br>
 </details>
 
