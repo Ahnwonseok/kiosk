@@ -33,6 +33,7 @@
 
 ## 아키텍처
 ### 운영환경 아키텍처
+![kiosk](https://github.com/user-attachments/assets/02361199-df76-471f-942b-4e1a7920cb9b)
 <img src="img_4.png" alt="로그인 페이지" width="90%" align="left" style="margin-right: 20px;">
 <br clear="left"><br>
 
