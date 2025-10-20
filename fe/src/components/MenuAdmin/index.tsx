@@ -101,7 +101,7 @@ export default function MenuAdmin() {
           {selectedCategory && (
             <div>
               <div className={styles.catHeader}>
-                {/* <h3>{selectedCategory.categoryName}</h3> */}
+                 <h3>{selectedCategory.categoryName}</h3>
                 <button className={styles.primary} onClick={onCreateProduct}>메뉴 추가</button>
               </div>
               <div className={styles.grid}>
