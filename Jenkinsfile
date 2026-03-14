@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        EC2_HOST = 'ec2-52-79-161-252.ap-northeast-2.compute.amazonaws.com'
+        EC2_HOST = 'ec2-52-79-203-45.ap-northeast-2.compute.amazonaws.com'
         PEM_PATH = "/c/Users/lenovo/Downloads/kiosk.pem"
         REPO_URL = 'https://github.com/Ahnwonseok/kiosk.git'
         REPO_CRED = 'kiosk'
