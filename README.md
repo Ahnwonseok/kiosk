@@ -1,11 +1,12 @@
-# Kiosk Project
+# 키오스크 프로젝트
+<br>
 
 ## 사이트 주소
 http://ec2-52-79-203-45.ap-northeast-2.compute.amazonaws.com:3000
 
 ## 프로젝트 소개
-교회 내 카페에서 수기로 주문을 관리하며 발생하는 주문 누락과 운영 비효율을 해결하기 위해 
-키오스크 기반 주문 관리 시스템을 설계하고 개발한 프로젝트입니다.
+교회 내에 있는 카페가 오픈한 이후 수기로 주문을 받고 있어 시간과 활동면에서 비효율적이라 판단했다.<br>
+주문이 많을 때도 누락되지 않고 순차적으로 주문을 관리하기 위해 키오스크를 설계 및 개발하였다.
 
 ## 개발 환경
 
@@ -13,10 +14,10 @@ http://ec2-52-79-203-45.ap-northeast-2.compute.amazonaws.com:3000
 |분류|기술스택|
 |------|---|
 |Language|<img src="https://img.shields.io/badge/Java 17-007396?style=for-the-badge&logo=java&logoColor=white">|
-|Framework|<img src="https://img.shields.io/badge/Spring Boot 3.2.2-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white"> <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white">|
+|Framework|<img src="https://img.shields.io/badge/Spring Boot 3.2.2-6DB33F?style=for-the-badge&logo=SpringBoot&logoColor=white"> <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=SpringSecurity&logoColor=white">|
 |ORM|<img src="https://img.shields.io/badge/Spring Data JPA-6DB33F?style=for-the-badge&logo=&logoColor=white"> <img src="https://img.shields.io/badge/QueryDSL-0088CC?style=for-the-badge&logo=&logoColor=white">|
-|Authentication|<img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON Web Tokens&logoColor=white">|
-|Cloud Storage|<img src="https://img.shields.io/badge/AWS S3-569A31?style=for-the-badge&logo=Amazon S3&logoColor=white">|
+|Authentication|<img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSONWebTokens&logoColor=white">|
+|Cloud Storage|<img src="https://img.shields.io/badge/AWS S3-569A31?style=for-the-badge&logo=AmazonS3&logoColor=white">|
 |Container|<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white">|
 
 ### Frontend
@@ -24,7 +25,6 @@ http://ec2-52-79-203-45.ap-northeast-2.compute.amazonaws.com:3000
 |------|---|
 |Language|<img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=TypeScript&logoColor=white">|
 |Framework|<img src="https://img.shields.io/badge/React 18.2-61DAFB?style=for-the-badge&logo=React&logoColor=black">|
-|Routing|<img src="https://img.shields.io/badge/React Router-CA4245?style=for-the-badge&logo=React Router&logoColor=white">|
 |HTTP Client|<img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=Axios&logoColor=white">|
 |Container|<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white"> <img src="https://img.shields.io/badge/Node.js 20-339933?style=for-the-badge&logo=Node.js&logoColor=white">|
 
@@ -36,55 +36,60 @@ http://ec2-52-79-203-45.ap-northeast-2.compute.amazonaws.com:3000
 
 ## 아키텍처
 ### 운영환경 아키텍처
-<img src="img_4.png" alt="로그인 페이지" width="90%" align="left" style="margin-right: 20px;">
-<br clear="left"><br>
+<img src="https://github.com/user-attachments/assets/02361199-df76-471f-942b-4e1a7920cb9b" alt="kiosk" width="700" />
+<br clear="left">
 
 ### 개발환경 아키텍처
-<img src="img_5.png" alt="로그인 페이지" width="90%" align="left" style="margin-right: 20px;">
+<img width="700" alt="kiosk drawio의 사본 drawio" src="https://github.com/user-attachments/assets/b2e91298-f8a6-4e6c-9f1c-5b1c06a1126e" />
 <br clear="left"><br>
 
 ## 테이블 설계
-<img src="img_6.png" alt="로그인 페이지" width="90%" align="left" style="margin-right: 20px;">
+<img width="700" alt="image" src="https://github.com/user-attachments/assets/8a22313c-e535-4899-99aa-6f43d6f7db20" />
 <br clear="left"><br>
 
 ## 주요 기능
+<details open>
+<summary> 1. 로그인 페이지</summary>
+<br>
+ 
+  - 바리스타는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
+ - 계정이 없는 경우 키오스크 이용하기를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
+ 
+<img width="400" alt="localhost_3030_(iPad Air)" src="https://github.com/user-attachments/assets/ebd01591-6d6b-4b7a-a5a4-142bc3dd87f7"/>
+<br clear="left"><br>
+</details>
 
-### 1. 로그인 페이지
-
-<img src="img.png" alt="로그인 페이지" width="50%" align="left" style="margin-right: 20px;">
-
-- 바리스타는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다. 
-- 계정이 없는 경우 키오스크 이용하기를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
+<details open>
+<summary> 2. 키오스크 화면</summary>
+<br>
+ 
+ - 손님이 원하는 메뉴, 개수, 온도를 선택하고 주문이 완료되면 실시간으로 바리스타에게 전송된다.
+ 
+  <img width="500" alt="localhost_3030_kiosk(iPad Air) (1)" src="https://github.com/user-attachments/assets/dc7c4b6f-4035-4cc0-a7ef-90ea42161113"/>
 
 <br clear="left"><br>
+</details>
 
-### 2. 키오스크 화면
+<details open>
+<summary> 3. 바리스타 화면</summary>
+<br>
 
-<img src="img_1.png" alt="로그인 페이지" width="50%" align="left" style="margin-right: 20px;">
-
-- 손님이 원하는 메뉴, 개수, 온도를 선택하고 주문이 완료되면 실시간으로 바리스타에게 전송된다.
-
-<br clear="left"><br>
-
-### 3. 바리스타 화면
-
-#### 3.1 주문관리
-
-<img src="img_2.png" alt="로그인 페이지" width="50%" align="left" style="margin-right: 20px;">
+**3.1 주문관리**
 
 - 좌측 화면에서는 키오스크와 마찬가지로 주문할 메뉴, 개수, 온도를 선택할 수 있다.
 - 우측 화면에서는 주문이 완료된 주문 내역을 확인하고 **진행단계**를 설정한다. (대기 - 진행 중 - 완료)
-
-<br clear="left"><br>
-
-#### 3.2 메뉴 관리
-
-<img src="img_3.png" alt="로그인 페이지" width="50%" align="left" style="margin-right: 20px;">
+  
+<img width="800" alt="localhost_3030_barista(Galaxy Tab S4) (2)" src="https://github.com/user-attachments/assets/cf30e545-7c59-4c4a-8763-1c482122570d"/>
+    <br clear="left"><br><br>
+    
+**3.2 메뉴 관리**
 
 - 카테고리를 추가, 수정, 삭제할수 있다.
 - 카테고리별 메뉴의 메뉴명, 이미지, 가격, 온도를 추가, 수정, 삭제할 수 있다.
-
-<br clear="left"><br>
+  
+<img width="700" alt="localhost_3030_barista(Galaxy Tab S4) (4)" src="https://github.com/user-attachments/assets/4128929b-b47f-422b-901b-3f44c37f81e7" />
+  <br clear="left"><br>
+</details>
 
 ## 기술적 고민과 선택
 
