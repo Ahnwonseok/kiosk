@@ -51,8 +51,8 @@ http://ec2-52-79-203-45.ap-northeast-2.compute.amazonaws.com:3000
 
 ### 1. 로그인 페이지
 
-- 바리스타는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
-- 계정이 없는 경우 키오스크 이용하기를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
+- **바리스타**는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
+- 계정이 없는 경우 **키오스크 이용하기**를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
 
 <img width="400" alt="localhost_3030_(iPad Air)" src="https://github.com/user-attachments/assets/ebd01591-6d6b-4b7a-a5a4-142bc3dd87f7"/>
 
