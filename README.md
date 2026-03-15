@@ -1,9 +1,12 @@
 # 키오스크 프로젝트
 <br>
 
+## 사이트 주소
+http://ec2-52-79-203-45.ap-northeast-2.compute.amazonaws.com:3000
+
 ## 프로젝트 소개
-교회 내에 있는 카페가 오픈한 이후 수기로 주문을 받고 있어 시간과 활동면에서 비효율적이라 판단했다.<br>
-주문이 많을 때도 누락되지 않고 순차적으로 주문을 관리하기 위해 키오스크를 설계 및 개발하였다.
+교회 내 카페에서 수기로 주문을 관리하며 발생하는 주문 누락과 운영 비효율을 해결하기 위해<br>
+키오스크 기반 주문 관리 시스템을 설계하고 개발한 프로젝트입니다.
 
 ## 개발 환경
 
@@ -45,48 +48,43 @@
 <br clear="left"><br>
 
 ## 주요 기능
-<details>
-<summary> 1. 로그인 페이지</summary>
-<br>
- 
-  - 바리스타는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
- - 계정이 없는 경우 키오스크 이용하기를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
- 
+
+### 1. 로그인 페이지
+
+- **바리스타**는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
+- 계정이 없는 경우 **키오스크 이용하기**를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
+
 <img width="400" alt="localhost_3030_(iPad Air)" src="https://github.com/user-attachments/assets/ebd01591-6d6b-4b7a-a5a4-142bc3dd87f7"/>
-<br clear="left"><br>
-</details>
-
-<details>
-<summary> 2. 키오스크 화면</summary>
-<br>
- 
- - 손님이 원하는 메뉴, 개수, 온도를 선택하고 주문이 완료되면 실시간으로 바리스타에게 전송된다.
- 
-  <img width="500" alt="localhost_3030_kiosk(iPad Air) (1)" src="https://github.com/user-attachments/assets/dc7c4b6f-4035-4cc0-a7ef-90ea42161113"/>
 
 <br clear="left"><br>
-</details>
 
-<details>
-<summary> 3. 바리스타 화면</summary>
-<br>
+### 2. 키오스크 화면
 
-**3.1 주문관리**
+- 손님이 원하는 메뉴, 개수, 온도를 선택하고 주문이 완료되면 실시간으로 바리스타에게 전송된다.
+
+<img width="500" alt="localhost_3030_kiosk(iPad Air) (1)" src="https://github.com/user-attachments/assets/dc7c4b6f-4035-4cc0-a7ef-90ea42161113"/>
+
+<br clear="left"><br>
+
+### 3. 바리스타 화면
+
+#### 3.1 주문관리
 
 - 좌측 화면에서는 키오스크와 마찬가지로 주문할 메뉴, 개수, 온도를 선택할 수 있다.
 - 우측 화면에서는 주문이 완료된 주문 내역을 확인하고 **진행단계**를 설정한다. (대기 - 진행 중 - 완료)
-  
+
 <img width="800" alt="localhost_3030_barista(Galaxy Tab S4) (2)" src="https://github.com/user-attachments/assets/cf30e545-7c59-4c4a-8763-1c482122570d"/>
-    <br clear="left"><br><br>
-    
-**3.2 메뉴 관리**
+
+<br clear="left"><br>
+
+#### 3.2 메뉴 관리
 
 - 카테고리를 추가, 수정, 삭제할수 있다.
 - 카테고리별 메뉴의 메뉴명, 이미지, 가격, 온도를 추가, 수정, 삭제할 수 있다.
-  
+
 <img width="700" alt="localhost_3030_barista(Galaxy Tab S4) (4)" src="https://github.com/user-attachments/assets/4128929b-b47f-422b-901b-3f44c37f81e7" />
-  <br clear="left"><br>
-</details>
+
+<br clear="left"><br>
 
 ## 기술적 고민과 선택
 
