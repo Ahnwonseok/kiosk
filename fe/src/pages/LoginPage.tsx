@@ -7,8 +7,8 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ navigate }: LoginPageProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('user');
+  const [password, setPassword] = useState('1111');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
