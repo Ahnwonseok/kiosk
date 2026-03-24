@@ -1,0 +1,12 @@
+# Jenkins에서 빌드한 JAR만 넣어 실행 (EC2에서 이미지 빌드 시 secret이 JAR에 포함된 상태)
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+
+RUN useradd -ms /bin/bash spring && chown spring:spring /app
+USER spring
+
+# 배포 디렉터리에 *.jar 하나만 두고 빌드
+COPY *.jar kiosk.jar
+
+EXPOSE 9090
+ENTRYPOINT ["java", "-jar", "kiosk.jar"]

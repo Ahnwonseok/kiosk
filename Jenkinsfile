@@ -43,12 +43,13 @@ pipeline {
             steps {
                 echo 'Deploying to EC2...'
                 bat """
-                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/build/libs/*.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
+                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/build/libs/be-0.0.1-SNAPSHOT.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
+                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/docker-compose.prod.yml be/Dockerfile.prod ec2-user@${EC2_HOST}:/home/ec2-user/app/"
                 "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
 
-                //백엔드 실행
+                // 백엔드: EC2에서 Docker Compose로 MariaDB + Spring (RDS 없이 동일 인스턴스)
                 "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f be-0.0.1-SNAPSHOT.jar || true'"
-                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup java -jar /home/ec2-user/app/be-0.0.1-SNAPSHOT.jar > /home/ec2-user/app/app.log 2>&1 &'"
+                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'cd /home/ec2-user/app && (docker compose -f docker-compose.prod.yml down || true) && docker compose -f docker-compose.prod.yml up -d --build'"
 
                 // 프론트엔드 실행 (serve 사용)
                 "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"

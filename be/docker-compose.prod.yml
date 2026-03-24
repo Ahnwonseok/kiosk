@@ -1,0 +1,42 @@
+# EC2 단일 호스트: RDS 대신 MariaDB 컨테이너 + Spring Boot 컨테이너
+# DB는 호스트에 포트 노출하지 않음(앱 컨테이너에서만 db:3306 접속)
+version: "3.9"
+
+services:
+  db:
+    image: mariadb:11
+    container_name: kiosk-db
+    restart: unless-stopped
+    command: --default-time-zone='+09:00'
+    environment:
+      MARIADB_DATABASE: kiosk
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-1234}
+      TZ: Asia/Seoul
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p$$MARIADB_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  kiosk:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: kiosk-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "9090:9090"
+    environment:
+      TZ: Asia/Seoul
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/kiosk
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MARIADB_ROOT_PASSWORD:-1234}
+    # application-secret.yml의 로컬 DB 설정보다 우선 (RDS 없이 Docker DB 사용)
+
+volumes:
+  dbdata: {}
