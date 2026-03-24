@@ -1,6 +1,5 @@
 # EC2 단일 호스트: RDS 대신 MariaDB 컨테이너 + Spring Boot 컨테이너
 # 호스트 3307 → DB 컨테이너 3306 (SSH 터널·로컬 도구용). 보안 그룹에서 3307 외부 오픈은 비권장.
-version: "3.9"
 
 services:
   db:
@@ -23,10 +22,7 @@ services:
       retries: 30
 
   kiosk:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    container_name: kiosk-app
+    image: kiosk-app:latest
     restart: unless-stopped
     depends_on:
       db:
