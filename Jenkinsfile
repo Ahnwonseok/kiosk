@@ -42,20 +42,25 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying to EC2...'
-                bat """
-                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/build/libs/be-0.0.1-SNAPSHOT.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
-                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/docker-compose.prod.yml be/Dockerfile.prod ec2-user@${EC2_HOST}:/home/ec2-user/app/"
-                "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
+                withCredentials([string(credentialsId: 'mariadb-root-password', variable: 'DB_PASSWORD')]) {
+                    bat """
+                    echo MARIADB_ROOT_PASSWORD=%DB_PASSWORD%> be\\.env.prod
+                    "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/build/libs/be-0.0.1-SNAPSHOT.jar ec2-user@${EC2_HOST}:/home/ec2-user/app/"
+                    "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' be/docker-compose.prod.yml be/Dockerfile.prod be/.env.prod ec2-user@${EC2_HOST}:/home/ec2-user/app/"
+                    "${BASH}" -c "scp ${SSH_OPTIONS} -i '${PEM_PATH}' -r fe/build/* ec2-user@${EC2_HOST}:/home/ec2-user/app/frontend/"
+                    "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'mv /home/ec2-user/app/.env.prod /home/ec2-user/app/.env && chmod 600 /home/ec2-user/app/.env'"
 
-                // 백엔드: EC2에서 Docker Compose로 MariaDB + Spring (RDS 없이 동일 인스턴스)
-                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f be-0.0.1-SNAPSHOT.jar || true'"
-                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'cd /home/ec2-user/app && (docker compose -f docker-compose.prod.yml down || true) && docker build -f Dockerfile.prod -t kiosk-app:latest . && docker compose -f docker-compose.prod.yml up -d'"
+                    // 백엔드: EC2에서 Docker Compose로 MariaDB + Spring (RDS 없이 동일 인스턴스)
+                    "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f be-0.0.1-SNAPSHOT.jar || true'"
+                    "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'cd /home/ec2-user/app && (docker compose -f docker-compose.prod.yml down || true) && docker build -f Dockerfile.prod -t kiosk-app:latest . && docker compose -f docker-compose.prod.yml up -d'"
 
-                // 프론트엔드 실행 (serve 사용)
-                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"
-                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f serve || true'"
-                "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup serve -s /home/ec2-user/app/frontend -l 3000 > /home/ec2-user/app/frontend.log 2>&1 &'"
-                """
+                    // 프론트엔드 실행 (serve 사용)
+                    "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'sudo npm install -g serve || true'"
+                    "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'pkill -f serve || true'"
+                    "${BASH}" -c "ssh ${SSH_OPTIONS} -i '${PEM_PATH}' ec2-user@${EC2_HOST} 'nohup serve -s /home/ec2-user/app/frontend -l 3000 > /home/ec2-user/app/frontend.log 2>&1 &'"
+                    del be\\.env.prod
+                    """
+                }
             }
         }
     }
