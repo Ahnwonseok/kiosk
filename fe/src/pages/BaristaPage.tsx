@@ -384,6 +384,21 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
     ));
   };
 
+  const isSameOrderLine = (a: ProductOrder, b: ProductOrder) =>
+    a.productId === b.productId &&
+    a.temperature === b.temperature &&
+    a.size === b.size;
+
+  const handleAdjustOrderAmount = (line: ProductOrder, delta: number) => {
+    setOrderList(prev =>
+      prev.map(order =>
+        isSameOrderLine(order, line)
+          ? { ...order, amount: Math.max(1, order.amount + delta) }
+          : order
+      )
+    );
+  };
+
   // 주문 등록 함수 (백엔드 연동)
   const handleConfirmOrder = async () => {
     if (orderList.length === 0) return;
@@ -571,25 +586,45 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
                   </div>
                 ) : (
                   <>
-                    {orderList.map((order, index) => {
+                    {orderList.map((order) => {
                       const product = products
                         .flatMap(category => category.products)
                         .find(p => p.productId === order.productId);
                       
                       if (!product) return null;
                       
-                      let price = product.price;
-                      // if (order.size === 'Large') {
-                      //   price += 500; // Large 사이즈 추가 가격
-                      // }
+                      const price = product.price;
+                      const lineKey = `${order.productId}-${order.temperature}-${order.size}`;
                       
                       return (
-                        <div key={index} className={styles.orderItem}>
-                          <span>
-                            {order.name} ({order.temperature}) x {order.amount}
+                        <div key={lineKey} className={styles.orderItem}>
+                          <span className={styles.orderItemLabel}>
+                            {order.name} ({order.temperature})
+                            {order.size ? ` · ${order.size}` : ''}
                           </span>
-                          <span>{(price * order.amount).toLocaleString()}원</span>
+                          <div className={styles.qtyStepper}>
+                            <button
+                              type="button"
+                              className={styles.qtyButton}
+                              aria-label="수량 감소"
+                              onClick={() => handleAdjustOrderAmount(order, -1)}
+                              disabled={order.amount <= 1}
+                            >
+                              −
+                            </button>
+                            <span className={styles.qtyValue}>{order.amount}</span>
+                            <button
+                              type="button"
+                              className={styles.qtyButton}
+                              aria-label="수량 증가"
+                              onClick={() => handleAdjustOrderAmount(order, 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                          <span className={styles.orderItemPrice}>{(price * order.amount).toLocaleString()}원</span>
                           <button 
+                            type="button"
                             className={styles.removeButton}
                             onClick={() => handleRemoveOrder(order)}
                           >
