@@ -2,11 +2,11 @@ package com.kiosk.repository;
 
 import com.kiosk.entity.Orders;
 import com.kiosk.entity.QOrders;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -52,6 +52,15 @@ public class OrdersRepositoryImpl implements OrdersRepositoryCustom {
                         .and(orders.orderDatetime.month().eq(today.getMonthValue()))
                         .and(orders.orderDatetime.dayOfMonth().eq(today.getDayOfMonth())))
                 .fetchOne();
+    }
+
+    @Override
+    public List<Orders> findOrdersBetween(LocalDateTime startInclusive, LocalDateTime endExclusive) {
+        QOrders orders = QOrders.orders;
+        return queryFactory
+                .selectFrom(orders)
+                .where(orders.orderDatetime.goe(startInclusive).and(orders.orderDatetime.lt(endExclusive)))
+                .fetch();
     }
 }
 

@@ -1,5 +1,13 @@
 import axiosInstance from './axiosInstance';
-import { OrderData, ManagedOrder, OrderStatusUpdate, ApiResponse, BackendOrderResponse } from './types';
+import {
+  OrderData,
+  ManagedOrder,
+  OrderStatusUpdate,
+  ApiResponse,
+  BackendOrderResponse,
+  OrderStatsPeriod,
+  OrderStatsResponse,
+} from './types';
 
 // 주문 목록 조회
 export const fetchOrders = async (): Promise<ManagedOrder[]> => {
@@ -72,4 +80,11 @@ export const deleteOrder = async (orderId: string): Promise<ApiResponse<void>> =
       error: error instanceof Error ? error.message : '주문 삭제에 실패했습니다.' 
     };
   }
-}; 
+};
+
+export const fetchOrderStats = async (period: OrderStatsPeriod): Promise<OrderStatsResponse> => {
+  const response = await axiosInstance.get<OrderStatsResponse>('api/orders/stats', {
+    params: { period },
+  });
+  return response.data;
+};

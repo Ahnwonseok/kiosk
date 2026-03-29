@@ -20,3 +20,14 @@ logging.level:
 server:
   port: 9090
 #  address: 0.0.0.0
+
+app:
+  batch:
+    daily-orders:
+      enabled: true
+      max-per-day: 30
+      cron: "0 0 3 * * *"
+      start-hour: 8
+      end-hour: 20
+      min-lines-per-order: 1
+      max-lines-per-order: 3

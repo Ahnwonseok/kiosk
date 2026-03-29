@@ -2,6 +2,7 @@ package com.kiosk.repository;
 
 import com.kiosk.entity.Orders;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrdersRepositoryCustom {
@@ -14,5 +15,8 @@ public interface OrdersRepositoryCustom {
     
     // 오늘 날짜의 최대 orderNumber 조회 (없으면 null 반환)
     Long findTodayMaxOrderNumber();
+
+    /** order_datetime in [startInclusive, endExclusive) */
+    List<Orders> findOrdersBetween(LocalDateTime startInclusive, LocalDateTime endExclusive);
 }
 

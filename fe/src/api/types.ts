@@ -36,4 +36,20 @@ export interface OrderEvent {
   orderId?: string;
   order?: ManagedOrder;
   status?: string;
+}
+
+export type OrderStatsPeriod = 'daily' | 'weekly' | 'monthly';
+
+export interface OrderStatsPoint {
+  label: string;
+  sortKey: string;
+  revenue: number;
+  orderCount: number;
+}
+
+export interface OrderStatsResponse {
+  period: OrderStatsPeriod;
+  points: OrderStatsPoint[];
+  totalRevenue: number;
+  totalCompletedOrders: number;
 } 
