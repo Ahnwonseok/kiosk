@@ -6,16 +6,119 @@ import useProducts from 'hooks/useProducts';
 import { formatAllCategories } from 'utils';
 import { CategoryInfo, ProductInfo, ProductOrder } from './types';
 import useOutsideClick from '../hooks/useOutsideClick';
-import { fetchOrders, createOrder, updateOrderStatus, deleteOrder, BASE_API_DOMAIN } from 'api';
-import { ManagedOrder, OrderEvent } from 'api/types';
+import { fetchOrders, createOrder, updateOrderStatus, deleteOrder, fetchOrderStats, BASE_API_DOMAIN } from 'api';
+import { ManagedOrder, OrderEvent, OrderStatsPeriod, OrderStatsResponse } from 'api/types';
 import styles from './BaristaPage.module.css';
+
+function StatsTab() {
+  const [period, setPeriod] = useState<OrderStatsPeriod>('daily');
+  const [data, setData] = useState<OrderStatsResponse | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setStatsLoading(true);
+      setStatsError(null);
+      try {
+        const res = await fetchOrderStats(period);
+        if (!cancelled) setData(res);
+      } catch (e) {
+        if (!cancelled) {
+          setStatsError(e instanceof Error ? e.message : '통계를 불러오지 못했습니다.');
+          setData(null);
+        }
+      } finally {
+        if (!cancelled) setStatsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [period]);
+
+  const points = data?.points ?? [];
+  const maxAmount = points.length ? Math.max(...points.map((p) => p.revenue), 1) : 1;
+  const hasAnyBar = points.some((p) => p.revenue > 0);
+
+  const periodLabel =
+    period === 'daily' ? '최근 14일' : period === 'weekly' ? '최근 8주(월요일 시작)' : '최근 12개월';
+
+  return (
+    <div className={styles.tabContent}>
+      <h2>통계</h2>
+      <p className={styles.statsLead}>
+        완료된 주문만 집계합니다. 주문 시각으로 일·주·월을 나눕니다.
+      </p>
+      <div className={styles.statsPeriodTabs}>
+        {(['daily', 'weekly', 'monthly'] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            className={period === p ? styles.statsPeriodTabActive : styles.statsPeriodTab}
+            onClick={() => setPeriod(p)}
+          >
+            {p === 'daily' ? '일별' : p === 'weekly' ? '주간' : '월간'}
+          </button>
+        ))}
+      </div>
+      {statsLoading ? (
+        <div className={styles.statsLoading}>통계를 불러오는 중…</div>
+      ) : statsError ? (
+        <div className={styles.statsEmpty}>{statsError}</div>
+      ) : !data || data.totalCompletedOrders === 0 || !hasAnyBar ? (
+        <div className={styles.statsEmpty}>선택한 구간에 완료 주문이 없어 매출 그래프를 표시할 수 없습니다.</div>
+      ) : (
+        <>
+          <div className={styles.statsSummary}>
+            <div className={styles.statsSummaryItem}>
+              <span className={styles.statsSummaryLabel}>{periodLabel} 완료 매출 합계</span>
+              <span className={styles.statsSummaryValue}>{data.totalRevenue.toLocaleString()}원</span>
+            </div>
+            <div className={styles.statsSummaryItem}>
+              <span className={styles.statsSummaryLabel}>완료 건수 합계</span>
+              <span className={styles.statsSummaryValue}>{data.totalCompletedOrders}건</span>
+            </div>
+          </div>
+          <div className={styles.chartWrap}>
+            <h3 className={styles.chartTitle}>
+              {period === 'daily' ? '일별 매출' : period === 'weekly' ? '주간 매출' : '월간 매출'}
+            </h3>
+            <div
+              className={styles.chartArea}
+              role="img"
+              aria-label="기간별 매출 막대 그래프"
+            >
+              {points.map((pt) => (
+                <div key={pt.sortKey} className={styles.chartColumn}>
+                  <div className={styles.chartBarTrack}>
+                    <div
+                      className={styles.chartBarFill}
+                      style={{
+                        height: `${pt.revenue > 0 ? (pt.revenue / maxAmount) * 100 : 0}%`,
+                      }}
+                      title={`${pt.label}: ${pt.revenue.toLocaleString()}원 (${pt.orderCount}건)`}
+                    />
+                  </div>
+                  <span className={styles.chartXLabel}>{pt.label}</span>
+                  <span className={styles.chartAmountLabel}>{pt.revenue.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 interface BaristaPageProps {
   navigate: (path: string) => void;
 }
 
 export default function BaristaPage({ navigate }: BaristaPageProps) {
-  const [activeTab, setActiveTab] = useState<'orders' | 'menu' | 'settings'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'menu' | 'stats'>('orders');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [products, loading, error] = useProducts();
   
@@ -407,10 +510,10 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
           메뉴 관리
         </button>
         <button
-          className={`${styles.navButton} ${activeTab === 'settings' ? styles.active : ''}`}
-          onClick={() => setActiveTab('settings')}
+          className={`${styles.navButton} ${activeTab === 'stats' ? styles.active : ''}`}
+          onClick={() => setActiveTab('stats')}
         >
-          설정
+          통계
         </button>
       </nav>
 
@@ -629,16 +732,7 @@ export default function BaristaPage({ navigate }: BaristaPageProps) {
           </div>
         )}
 
-        {activeTab === 'settings' && (
-          <div className={styles.tabContent}>
-            <h2>설정</h2>
-            <p>시스템 설정 및 계정 관리 기능이 여기에 들어갈 예정입니다.</p>
-            <div className={styles.placeholder}>
-              <p>🚧 설정 기능 개발 중 🚧</p>
-              <p>계정 정보 변경, 시스템 설정 등의 기능이 추가될 예정입니다.</p>
-            </div>
-          </div>
-        )}
+        {activeTab === 'stats' && <StatsTab />}
       </main>
 
       {/* OrderModal */}
