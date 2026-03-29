@@ -51,7 +51,7 @@ http://54.180.205.223:3000
 
 ### 1. 로그인 페이지
 
-- **바리스타**는 로그인하여 주문관리, 주문 등록, 메뉴 관리를 할 수 있다.
+- - **바리스타**는 로그인하여 주문관리, 주문 등록, 메뉴 관리, 매출 통계 확인을 할 수 있다.
 - 계정이 없는 경우 **키오스크 이용하기**를 클릭하여 일반 손님들이 메뉴를 주문할 수 있다.
 
 <img width="400" alt="localhost_3030_(iPad Air)" src="https://github.com/user-attachments/assets/ebd01591-6d6b-4b7a-a5a4-142bc3dd87f7"/>
@@ -83,6 +83,14 @@ http://54.180.205.223:3000
 - 카테고리별 메뉴의 메뉴명, 이미지, 가격, 온도를 추가, 수정, 삭제할 수 있다.
 
 <img width="700" alt="localhost_3030_barista(Galaxy Tab S4) (4)" src="https://github.com/user-attachments/assets/4128929b-b47f-422b-901b-3f44c37f81e7" />
+
+<br clear="left"><br>
+
+#### 3.3 통계 (매출 그래프)
+
+- 바리스타 화면 **통계** 탭에서 **일별·주간·월간** 구간을 선택해 매출을 막대 그래프로 확인할 수 있다.
+- **완료** 처리된 주문만 집계하며, 기간별 합계 매출·완료 건수를 함께 표시한다.
+<img width="700" alt="image" src="https://github.com/user-attachments/assets/5f11596d-9290-4de0-9d8d-33b8aa9e6b31" />
 
 <br clear="left"><br>
 
